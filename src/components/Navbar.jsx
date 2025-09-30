@@ -1,4 +1,11 @@
-import { faBell, faMessage, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faBell,
+  faMarsAndVenus,
+  faMessage,
+  faSearch,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -10,18 +17,29 @@ import {
 import { useSearch } from "../context/SearchContext";
 
 function Navbar() {
-  const { search, searchHandler, setSearch } = useSearch();
+  const { search, searchHandler, setSearch, setIsOpen, isOpen } = useSearch();
 
   return (
     <div className="h-[64px] bg-[#232427] text-white flex items-center justify-between px-6 shadow-md">
       {/* Left: Branding */}
-      <h1 className="w-[240px] font-extrabold text-xl tracking-wide flex items-center gap-2 cursor-pointer">
-        🍴{" "}
+      <h1 className="hidden md:flex w-[240px] font-extrabold text-xl tracking-wide items-center gap-2 cursor-pointer">
+        🍴
         <span>
-          {" "}
-          <Link to={"/"}>MyRestaurant</Link>{" "}
+          <Link to="/">MyRestaurant</Link>
         </span>
       </h1>
+
+      <button
+        className="text-2xl cursor-pointer md:hidden"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? (
+          <FontAwesomeIcon icon={faTimes} />
+        ) : (
+          <FontAwesomeIcon icon={faBars} />
+        )}
+      </button>
+
       {/* Middle: Search */}
 
       <div className="flex flex-1 max-w-lg mx-6">

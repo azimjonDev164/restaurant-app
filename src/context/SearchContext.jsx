@@ -1,11 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 const SearchContext = createContext();
 
 export const SearchProvider = ({ children }) => {
   const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const searchHandler = () => {
@@ -18,7 +18,7 @@ export const SearchProvider = ({ children }) => {
 
   return (
     <SearchContext.Provider
-      value={{ search, setSearch, searchHandler, navigate }}
+      value={{ search, setSearch, searchHandler, navigate, isOpen, setIsOpen }}
     >
       {children}
     </SearchContext.Provider>

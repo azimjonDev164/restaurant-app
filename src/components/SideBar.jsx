@@ -9,6 +9,7 @@ import {
   faProjectDiagram,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { useSearch } from "../context/SearchContext";
 
 const filters = [
   { title: "Home", link: "/", icon: faHome },
@@ -25,13 +26,24 @@ const Adminfilters = [
 
 function SideBar() {
   const [filter, setFilter] = useState("Home");
+  const { isOpen, setIsOpen } = useSearch();
 
   return (
-    <div className=" w-[250px] min-w-[220px] resize-x overflow-auto h-[calc(100vh-60px)] bg-[#232427] text-gray-200 shadow-lg flex flex-col">
+    <div
+      className={`${
+        isOpen ? "block" : "hidden"
+      } md:flex  w-[250px] min-w-[220px] resize-x overflow-auto h-[calc(100vh-60px)] bg-[#232427] text-gray-200 shadow-lg flex-col`}
+    >
       {/* Menu */}
       <ul className="flex flex-col mt-4 space-y-2 px-2">
         {filters.map((item) => (
-          <li key={item.title} onClick={() => setFilter(item.title)}>
+          <li
+            key={item.title}
+            onClick={() => {
+              setFilter(item.title);
+              setIsOpen(!isOpen);
+            }}
+          >
             <Link
               to={item.link}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-300 hover:text-black transition-colors duration-200 ${
@@ -46,7 +58,13 @@ function SideBar() {
       </ul>
       <ul className="flex flex-col mt-4 space-y-2 px-2 pt-2 border-t border-gray-700">
         {Adminfilters.map((item) => (
-          <li key={item.title} onClick={() => setFilter(item.title)}>
+          <li
+            key={item.title}
+            onClick={() => {
+              setFilter(item.title);
+              setIsOpen(!isOpen);
+            }}
+          >
             <Link
               to={item.link}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-300 hover:text-black transition-colors duration-200 ${
