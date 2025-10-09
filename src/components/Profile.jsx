@@ -21,7 +21,7 @@ function Profile() {
   }
 
   return (
-    <div className="p-6">
+    <div className="py-6 px-1">
       {/* Header Section */}
       <div className="border-b-2 border-dashed border-gray-600 pb-4 mb-6">
         <h1 className="text-4xl font-bold text-white">Profile</h1>

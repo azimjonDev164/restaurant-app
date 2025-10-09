@@ -32,7 +32,7 @@ export default function TableItem() {
   const slot = reservations.find((s) => s.id === selectedSlot);
 
   return (
-    <div className="px-8 pt-8 min-h-screen text-white">
+    <div className="pt-8 pb-3 w-full mx-auto min-h-screen text-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3">

@@ -66,7 +66,7 @@ function Orders() {
   }
 
   return (
-    <div className="min-h-screen p-6 md:p-10">
+    <div className="min-h-screen w-full py-6 px-1 md:p-10">
       {/* Header Section */}
       <div className="border-b-2 border-dashed border-gray-700 pb-6 mb-8">
         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
