@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import Home from "./components/Home";
 import {
   AddCard,
+  Dashboard,
   NotFound,
   Notification,
   NotificationItem,
@@ -14,6 +15,7 @@ import {
   Tables,
   Users,
 } from "./components";
+import Orders from "./components/Orders";
 
 function App() {
   return (
@@ -26,7 +28,7 @@ function App() {
             <Route path=":id" element={<TableItem />} />
           </Route>
 
-          <Route path="/order" element={<Order />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="notification">
             <Route index element={<Notification />} />
@@ -35,6 +37,7 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/addcards" element={<AddCard />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/*" element={<NotFound />} />
         </Route>

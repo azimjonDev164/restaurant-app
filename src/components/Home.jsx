@@ -13,7 +13,7 @@ function Home() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="space-y-4 text-center md:text-left">
             <h1 className="text-4xl font-extrabold tracking-wide drop-shadow-md">
-              Welcome to Our Restaurant
+              Welcome to Our Restaurants
             </h1>
             <p className="max-w-2xl text-gray-100 leading-relaxed text-lg">
               Enjoy delicious food, cozy atmosphere, and a place where every

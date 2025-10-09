@@ -15,14 +15,11 @@ const filters = [
   { title: "Home", link: "/", icon: faHome },
   { title: "Tabels", link: "/tables", icon: faUtensils },
 
-  { title: "Order", link: "/order", icon: faShoppingCart },
+  { title: "Orders", link: "/orders", icon: faShoppingCart },
   { title: "Profile", link: "/profile", icon: faPersonCircleCheck },
 ];
 
-const Adminfilters = [
-  { title: "cards", link: "/addcards", icon: faProjectDiagram },
-  { title: "users", link: "/users", icon: faUser },
-];
+const Adminfilters = [{ title: "users", link: "/users", icon: faUser }];
 
 function SideBar() {
   const [filter, setFilter] = useState("Home");

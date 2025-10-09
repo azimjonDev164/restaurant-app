@@ -9,3 +9,4 @@ export { default as AddCard } from "./AddCard";
 export { default as Search } from "./Search";
 export { default as Profile } from "./Profile";
 export { default as TableItem } from "./TableItem";
+export { default as Dashboard } from "./Dashboard";

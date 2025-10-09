@@ -1,4 +1,12 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faMinus,
+  faShoppingCart,
+  faTags,
+  faUtensils,
+} from "@fortawesome/free-solid-svg-icons";
 
 const filters = ["foods", "drinks", "desserts"];
 
@@ -32,7 +40,7 @@ const products = {
       description: "Refreshing juice made from organic oranges.",
       price: 6,
       image:
-        "https://t4.ftcdn.net/jpg/01/07/93/25/360_F_107932517_bRTDt5PCP4mOxlnsifzR6kXxkR3xi8QA.jpg",
+        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/orange-juice.jpg",
       tags: ["Drink", "Healthy"],
       status: "NEW",
     },
@@ -42,7 +50,7 @@ const products = {
       description: "Cold brewed coffee with a touch of sweetness.",
       price: 5,
       image:
-        "https://t4.ftcdn.net/jpg/01/07/93/25/360_F_107932517_bRTDt5PCP4mOxlnsifzR6kXxkR3xi8QA.jpg",
+        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/iced-coffee.jpg",
       tags: ["Drink", "Coffee"],
       status: "POPULAR",
     },
@@ -71,10 +79,11 @@ const products = {
   ],
 };
 
-function Order() {
+function Order({ tableId }) {
   const [filter, setFilter] = useState("foods");
+  const [cart, setCart] = useState({});
+
   const productList = products[filter] || [];
-  const [cart, setCart] = useState({}); // { id: quantity }
 
   const increase = (id) => {
     setCart((prev) => ({
@@ -92,94 +101,132 @@ function Order() {
     });
   };
 
+  const getTotalPrice = () => {
+    return Object.entries(cart).reduce((total, [id, qty]) => {
+      const product = Object.values(products)
+        .flat()
+        .find((p) => p.id === +id);
+      return total + product.price * qty;
+    }, 0);
+  };
+
   return (
-    <div className="flex flex-col-reverse md:flex-row gap-6 md:px-8 py-6 bg-[#101828]">
-      {/* Left Side - Product List */}
-      <div className="flex-1 flex flex-col gap-6 overflow-y-auto h-[80vh]">
-        {/* Filter Buttons */}
-        <div className="flex gap-3 sticky top-0 z-[999] bg-[#101828] py-2 pl-3">
+    <div className="flex flex-col md:flex-row gap-6 md:px-12 py-8 bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen text-white font-sans">
+      {/* LEFT - Products */}
+      <div className="flex-1 flex flex-col gap-8">
+        {/* FILTER TABS */}
+        <div className="flex gap-4 sticky top-0 z-20 bg-gray-900/95 backdrop-blur-sm py-4 px-4 rounded-xl shadow-lg">
           {filters.map((item) => (
             <button
               key={item}
               onClick={() => setFilter(item)}
-              className={`px-5 py-2 rounded-3xl font-medium capitalize transition-all duration-300 cursor-pointer ${
+              className={`px-6 py-2.5 rounded-full font-medium capitalize text-sm tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 ${
                 item === filter
-                  ? "bg-yellow-600 ring-2 ring-yellow-400 text-white shadow-lg"
-                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                  ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg"
+                  : "bg-gray-700/80 text-gray-200 hover:bg-gray-600 hover:text-white"
               }`}
+              aria-pressed={item === filter}
             >
               {item}
             </button>
           ))}
         </div>
 
-        {/* Product Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
+        {/* PRODUCTS GRID */}
+        <div className="flex flex-wrap gap-6">
           {productList.map((item) => (
             <div
               key={item.id}
-              className="bg-gradient-to-b from-gray-900 to-gray-800 text-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col border border-gray-700"
+              className="group w-[270px] h-[350px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 hover:shadow-2xl transition-all duration-300 p-5 flex flex-col"
+              role="article"
+              aria-labelledby={`product-${item.id}`}
             >
-              {/* Image */}
-              <figure className="h-48 overflow-hidden rounded-t-3xl relative">
+              {/* IMAGE */}
+              <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="object-cover w-full h-full hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
                 />
-                <span className="absolute top-3 right-3 bg-yellow-500 text-white text-xs px-3 py-1 rounded-full shadow">
+                <span
+                  className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
+                    item.status === "NEW"
+                      ? "bg-green-500"
+                      : item.status === "HOT"
+                      ? "bg-red-500"
+                      : item.status === "POPULAR"
+                      ? "bg-blue-500"
+                      : "bg-yellow-500"
+                  } text-white`}
+                >
                   {item.status}
                 </span>
-              </figure>
+              </div>
 
-              {/* Content */}
-              <div className="p-5 flex flex-col justify-between flex-1">
-                <h2 className="text-xl font-semibold mb-2">{item.name}</h2>
-                <p className="text-sm text-gray-300 flex-1 leading-relaxed">
-                  {item.description}
-                </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {item.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 text-xs bg-white/10 text-gray-200 rounded-full border border-gray-500/30"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+              {/* CONTENT */}
+              <div className="flex flex-col justify-between flex-1">
+                <div>
+                  <h2
+                    id={`product-${item.id}`}
+                    className="text-xl font-bold flex items-center gap-2 text-white"
+                  >
+                    <FontAwesomeIcon
+                      icon={faUtensils}
+                      className="text-yellow-400"
+                    />
+                    {item.name}
+                  </h2>
+                  <p className="text-sm text-gray-300 line-clamp-2 mt-2">
+                    {item.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {item.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs bg-gray-700/60 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-gray-200 border border-gray-600"
+                      >
+                        <FontAwesomeIcon
+                          icon={faTags}
+                          className="text-yellow-400"
+                        />
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Price + Quantity Controls */}
-                <div className="flex justify-between items-center mt-5">
-                  <span className="text-lg font-bold text-yellow-400">
-                    ${item.price}
+                {/* PRICE + CONTROLS */}
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-xl font-bold text-yellow-400">
+                    ${item.price.toFixed(2)}
                   </span>
-
                   {!cart[item.id] ? (
                     <button
                       onClick={() => increase(item.id)}
-                      className="px-5 py-2 bg-yellow-500 text-white text-sm font-medium rounded-full shadow hover:bg-yellow-600 transition"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-sm font-semibold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      aria-label={`Add ${item.name} to cart`}
                     >
-                      Add
+                      <FontAwesomeIcon icon={faPlus} /> Add
                     </button>
                   ) : (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <button
                         onClick={() => decrease(item.id)}
-                        className="w-8 h-8 flex items-center justify-center bg-gray-700 text-white rounded-full hover:bg-gray-600 transition"
+                        className="w-9 h-9 flex items-center justify-center bg-gray-700 rounded-full hover:bg-gray-600 transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        aria-label={`Decrease quantity of ${item.name}`}
                       >
-                        –
+                        <FontAwesomeIcon icon={faMinus} />
                       </button>
-                      <span className="text-lg font-semibold">
+                      <span className="text-base font-semibold text-white">
                         {cart[item.id]}
                       </span>
                       <button
                         onClick={() => increase(item.id)}
-                        className="w-8 h-8 flex items-center justify-center bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition"
+                        className="w-9 h-9 flex items-center justify-center bg-yellow-500 rounded-full hover:bg-yellow-600 transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        aria-label={`Increase quantity of ${item.name}`}
                       >
-                        +
+                        <FontAwesomeIcon icon={faPlus} />
                       </button>
                     </div>
                   )}
@@ -190,36 +237,58 @@ function Order() {
         </div>
       </div>
 
-      {/* Right Side - Order Summary */}
-      {/* Right Side - Order Summary */}
-      <div className="w-[300px] h-[80vh] bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl shadow-lg p-5 flex flex-col overflow-y-auto border border-gray-700">
-        <h3 className="text-xl font-bold text-white mb-4">🛒 Your Order</h3>
-        <h3 className="text-xl font-bold text-white mb-4">Table / Room 1</h3>
+      {/* RIGHT - ORDER SUMMARY */}
+      <div className="w-full md:w-[360px] sticky top-1 bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-6 flex flex-col h-[85vh]">
+        <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
+          <FontAwesomeIcon icon={faShoppingCart} className="text-yellow-400" />
+          Your Order
+        </h3>
+        <p className="text-gray-300 mb-5 text-sm">Table {tableId}</p>
+
         {Object.keys(cart).length === 0 ? (
-          <p className="text-gray-400 flex-1">No items added yet.</p>
+          <p className="text-gray-400 flex-1 flex items-center justify-center text-center">
+            No items added yet. Start exploring our menu!
+          </p>
         ) : (
-          <ul className="flex flex-col gap-3 flex-1">
-            {Object.entries(cart).map(([id, qty]) => {
-              const product = Object.values(products)
-                .flat()
-                .find((p) => p.id === +id);
-              return (
-                <li
-                  key={id}
-                  className="flex justify-between items-center text-white"
-                >
-                  <span>
-                    {product.name} x {qty}
-                  </span>
-                  <span className="font-semibold">${product.price * qty}</span>
-                </li>
-              );
-            })}
-          </ul>
+          <>
+            <ul className="flex flex-col gap-3 flex-1 overflow-y-auto pr-2 mb-4">
+              {Object.entries(cart).map(([id, qty]) => {
+                const product = Object.values(products)
+                  .flat()
+                  .find((p) => p.id === +id);
+                return (
+                  <li
+                    key={id}
+                    className="flex justify-between items-center bg-gray-800/70 px-4 py-3 rounded-xl border border-gray-700 hover:bg-gray-800 transition"
+                  >
+                    <span className="text-sm text-gray-200">
+                      {product.name} × {qty}
+                    </span>
+                    <span className="font-semibold text-yellow-400">
+                      ${(product.price * qty).toFixed(2)}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t border-gray-700 pt-4 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold text-gray-200">
+                  Total:
+                </span>
+                <span className="text-xl font-bold text-yellow-400">
+                  ${getTotalPrice().toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </>
         )}
 
-        {/* Order Now Button */}
-        <button className="mt-4 text-lg btn btn-warning w-full">
+        <button
+          className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={Object.keys(cart).length === 0}
+          aria-label="Proceed to order"
+        >
           Order Now
         </button>
       </div>
