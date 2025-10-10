@@ -172,11 +172,7 @@ function Dashboard() {
               placeholder="Enter price"
             />
             <label className="block mb-2 text-sm">Image URL</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter image URL"
-            />
+            <input type="file" className="file-input file-input-ghost" />
           </>
         );
       case "Category":

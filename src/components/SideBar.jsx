@@ -13,6 +13,7 @@ import { useSearch } from "../context/SearchContext";
 
 const filters = [
   { title: "Home", link: "/", icon: faHome },
+  { title: "Dashboard", link: "/dashboard", icon: faHome },
   { title: "Tabels", link: "/tables", icon: faUtensils },
 
   { title: "Orders", link: "/orders", icon: faShoppingCart },
