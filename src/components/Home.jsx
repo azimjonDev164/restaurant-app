@@ -1,10 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import useFetch from "../hooks/useFetch";
 
 function Home() {
   const cards = [6, 8, 6, 5, 5, 6, 2, 3];
-  const { data, loading } = useFetch();
 
   return (
     <div className="h-auto w-full flex flex-col gap-10 mt-4 px-4 md:px-4 lg:px-6">

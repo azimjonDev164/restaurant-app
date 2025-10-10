@@ -4,13 +4,11 @@ import {
   faFolder,
   faChair,
   faBookOpen,
-  faTrash,
-  faReply,
-  faEdit,
   faPlus,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import { Category, Dishes, Menu, Tables } from "../utils";
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState("Dishes");
@@ -47,176 +45,78 @@ function Dashboard() {
   const renderTable = () => {
     switch (activeSection) {
       case "Dishes":
-        return (
-          <table className="table-auto w-full text-left border-collapse text-white">
-            <caption className="caption-top text-lg font-semibold mb-2 text-white">
-              🍔 Dishes
-            </caption>
-            <thead>
-              <tr className="bg-gray-700 text-gray-300">
-                <th className="px-4 py-2">Image</th>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Price</th>
-                <th className="px-4 py-2">Category</th>
-                <th className="px-4 py-2 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="hover:bg-gray-700 transition-all duration-200">
-                <td className="px-4 py-2">
-                  <img
-                    className="w-[60px] h-[60px] rounded-2xl object-cover"
-                    src="https://thedeliciousspoon.com/wp-content/uploads/2019/04/Burger-pic-pin-1.jpg"
-                    alt="dish"
-                  />
-                </td>
-                <td className="px-4 py-2 font-medium">Burger</td>
-                <td className="px-4 py-2">$15</td>
-                <td className="px-4 py-2">Main Dish</td>
-                <td className="px-4 py-2 flex gap-3 justify-center">
-                  <button className="text-red-400 hover:text-red-500">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                  <button className="text-blue-400 hover:text-blue-500">
-                    <FontAwesomeIcon icon={faReply} />
-                  </button>
-                  <button className="text-green-400 hover:text-green-500">
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        );
+        return <Dishes />;
       case "Category":
-        return (
-          <table className="table-auto w-full text-left text-white">
-            <caption className="caption-top text-lg font-semibold mb-2 text-white">
-              🗂️ Categories
-            </caption>
-            <thead>
-              <tr className="bg-gray-700 text-gray-300">
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="hover:bg-gray-700">
-                <td className="px-4 py-2">Main Dish</td>
-                <td className="px-4 py-2">Delicious cooked meals</td>
-              </tr>
-            </tbody>
-          </table>
-        );
+        return <Category />;
       case "Tables":
-        return (
-          <table className="table-auto w-full text-left text-white">
-            <caption className="caption-top text-lg font-semibold mb-2 text-white">
-              🪑 Tables
-            </caption>
-            <thead>
-              <tr className="bg-gray-700 text-gray-300">
-                <th className="px-4 py-2">Table Number</th>
-                <th className="px-4 py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="hover:bg-gray-700">
-                <td className="px-4 py-2">Table 1</td>
-                <td className="px-4 py-2 text-green-400">Available</td>
-              </tr>
-            </tbody>
-          </table>
-        );
+        return <Tables />;
       case "Menu":
-        return (
-          <table className="table-auto w-full text-left text-white">
-            <caption className="caption-top text-lg font-semibold mb-2 text-white">
-              📖 Menu
-            </caption>
-            <thead>
-              <tr className="bg-gray-700 text-gray-300">
-                <th className="px-4 py-2">Menu Item</th>
-                <th className="px-4 py-2">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="hover:bg-gray-700">
-                <td className="px-4 py-2">Pasta Combo</td>
-                <td className="px-4 py-2">$20</td>
-              </tr>
-            </tbody>
-          </table>
-        );
+        return <Menu />;
       default:
         return null;
     }
   };
 
   // RENDER MODAL FORM
-  const renderForm = () => {
-    switch (activeSection) {
-      case "Dishes":
-        return (
-          <>
-            <label className="block mb-2 text-sm">Dish Name</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter dish name"
-            />
-            <label className="block mb-2 text-sm">Price</label>
-            <input
-              type="number"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter price"
-            />
-            <label className="block mb-2 text-sm">Image URL</label>
-            <input type="file" className="file-input file-input-ghost" />
-          </>
-        );
-      case "Category":
-        return (
-          <>
-            <label className="block mb-2 text-sm">Category Name</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter category name"
-            />
-            <label className="block mb-2 text-sm">Description</label>
-            <textarea
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter description"
-            ></textarea>
-          </>
-        );
-      case "Menu":
-        return (
-          <>
-            <label className="block mb-2 text-sm">Menu Item</label>
-            <input
-              type="text"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter menu item name"
-            />
-            <label className="block mb-2 text-sm">Price</label>
-            <input
-              type="number"
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter price"
-            />
-          </>
-        );
-      default:
-        return <p>No form available.</p>;
-    }
-  };
+  // const renderForm = () => {
+  //   switch (activeSection) {
+  //     case "Dishes":
+  //       return (
+  //         <>
+  //           <label className="block mb-2 text-sm">Dish Name</label>
+  //           <input
+  //             type="text"
+  //             name="name"
+  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
+  //             placeholder="Enter dish name"
+  //           />
+  //           <label className="block mb-2 text-sm">Price</label>
+  //           <input
+  //             type="number"
+  //             name="price"
+  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
+  //             placeholder="Enter price"
+  //           />
+  //           <label className="block mb-2 text-sm">Image URL</label>
+  //           <input
+  //             name="image"
+  //             type="file"
+  //             className="file-input file-input-ghost"
+  //           />
+  //         </>
+  //       );
+  //     case "Category":
+  //       return (
+  //         <>
+  //           <label className="block mb-2 text-sm">Category Name</label>
+  //           <input
+  //             type="text"
+  //             name="name"
+  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
+  //             placeholder="Enter category name"
+  //           />
+  //         </>
+  //       );
+  //     case "Menu":
+  //       return (
+  //         <>
+  //           <label className="block mb-2 text-sm">Menu Item</label>
+  //           <input
+  //             type="text"
+  //             name="name"
+  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
+  //             placeholder="Enter menu item name"
+  //           />
+  //         </>
+  //       );
+  //     default:
+  //       return <p>No form available.</p>;
+  //   }
+  // };
 
   return (
     <div className="p-6 bg-slate-900 min-h-screen text-white">
       <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
-
       {/* CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {cards.map((card, index) => (
@@ -244,9 +144,8 @@ function Dashboard() {
           </div>
         ))}
       </div>
-
       {/* HEADER + ADD BUTTON */}
-      <div className="flex justify-between items-center mb-3">
+      {/* <div className="flex justify-between items-center mb-3">
         <h2 className="text-2xl font-semibold">{activeSection}</h2>
         <button
           onClick={() => setShowModal(true)}
@@ -255,14 +154,13 @@ function Dashboard() {
           <FontAwesomeIcon icon={faPlus} />
           Add {activeSection}
         </button>
-      </div>
-
+      </div> */}
       {/* TABLE SECTION */}
       <div className="bg-gray-800 rounded-2xl shadow-lg p-6 overflow-x-auto">
         {renderTable()}
       </div>
-
-      {/* MODAL FORM */}
+      
+      {/* MODAL FORM
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
           <div className="bg-gray-900 p-6 rounded-2xl w-[90%] sm:w-[400px] relative shadow-2xl">
@@ -281,7 +179,7 @@ function Dashboard() {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
