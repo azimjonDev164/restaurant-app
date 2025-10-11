@@ -4,15 +4,12 @@ import {
   faFolder,
   faChair,
   faBookOpen,
-  faPlus,
-  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Category, Dishes, Menu, Tables } from "../utils";
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState("Dishes");
-  const [showModal, setShowModal] = useState(false);
 
   const cards = [
     {
@@ -57,63 +54,6 @@ function Dashboard() {
     }
   };
 
-  // RENDER MODAL FORM
-  // const renderForm = () => {
-  //   switch (activeSection) {
-  //     case "Dishes":
-  //       return (
-  //         <>
-  //           <label className="block mb-2 text-sm">Dish Name</label>
-  //           <input
-  //             type="text"
-  //             name="name"
-  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-  //             placeholder="Enter dish name"
-  //           />
-  //           <label className="block mb-2 text-sm">Price</label>
-  //           <input
-  //             type="number"
-  //             name="price"
-  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-  //             placeholder="Enter price"
-  //           />
-  //           <label className="block mb-2 text-sm">Image URL</label>
-  //           <input
-  //             name="image"
-  //             type="file"
-  //             className="file-input file-input-ghost"
-  //           />
-  //         </>
-  //       );
-  //     case "Category":
-  //       return (
-  //         <>
-  //           <label className="block mb-2 text-sm">Category Name</label>
-  //           <input
-  //             type="text"
-  //             name="name"
-  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-  //             placeholder="Enter category name"
-  //           />
-  //         </>
-  //       );
-  //     case "Menu":
-  //       return (
-  //         <>
-  //           <label className="block mb-2 text-sm">Menu Item</label>
-  //           <input
-  //             type="text"
-  //             name="name"
-  //             className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-  //             placeholder="Enter menu item name"
-  //           />
-  //         </>
-  //       );
-  //     default:
-  //       return <p>No form available.</p>;
-  //   }
-  // };
-
   return (
     <div className="p-6 bg-slate-900 min-h-screen text-white">
       <h1 className="text-3xl font-bold mb-6">Dashboard Overview</h1>
@@ -144,42 +84,11 @@ function Dashboard() {
           </div>
         ))}
       </div>
-      {/* HEADER + ADD BUTTON */}
-      {/* <div className="flex justify-between items-center mb-3">
-        <h2 className="text-2xl font-semibold">{activeSection}</h2>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition-all duration-200"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Add {activeSection}
-        </button>
-      </div> */}
+
       {/* TABLE SECTION */}
       <div className="bg-gray-800 rounded-2xl shadow-lg p-6 overflow-x-auto">
         {renderTable()}
       </div>
-      
-      {/* MODAL FORM
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-          <div className="bg-gray-900 p-6 rounded-2xl w-[90%] sm:w-[400px] relative shadow-2xl">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </button>
-            <h3 className="text-xl font-semibold mb-4">
-              Add New {activeSection}
-            </h3>
-            {renderForm()}
-            <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3">
-              Save
-            </button>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 }

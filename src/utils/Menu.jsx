@@ -6,19 +6,15 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import useMenu from "../hooks/useMenu";
 
 export default function Menu() {
+  const { data, loading, err, createMenu, updateMenu } = useMenu();
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
   });
-
-  // Temporary local data
-  const [menuItems, setMenuItems] = useState([
-    { id: 1, name: "Pasta Combo", price: 20 },
-    { id: 2, name: "Pizza Margherita", price: 15 },
-  ]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -28,34 +24,29 @@ export default function Menu() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (!formData.name || !formData.price) {
-      alert("Please fill all fields");
-      return;
+    try {
+      if (editingId) {
+        await updateMenu(editingId, formData.name);
+      } else {
+        // CREATE mode
+        await createMenu(formData.name);
+      }
+
+      setFormData({ name: "" });
+      setEditingId(null);
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error saving table:", error);
     }
+  };
 
-    // For now, just add locally (later connect to backend)
-    const newItem = {
-      id: menuItems.length + 1,
-      name: formData.name,
-      price: parseFloat(formData.price),
-    };
-
-    setMenuItems((prev) => [...prev, newItem]);
-    setFormData({ name: "", price: "" });
-    setShowModal(false);
-
-    console.log("New Menu Added:", newItem);
-
-    // Later: send to backend
-    /*
-    const res = await fetch("/api/menu", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+  // ✅ Open modal in edit mode
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.name,
     });
-    const result = await res.json();
-    console.log(result);
-    */
+    setEditingId(item._id);
+    setShowModal(true);
   };
 
   return (
@@ -80,28 +71,49 @@ export default function Menu() {
         <thead>
           <tr className="bg-gray-700 text-gray-300">
             <th className="px-4 py-2">Menu Item</th>
-            <th className="px-4 py-2">Price ($)</th>
             <th className="px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {menuItems.map((item) => (
-            <tr
-              key={item.id}
-              className="hover:bg-gray-700 border-b border-gray-800"
-            >
-              <td className="px-4 py-2">{item.name}</td>
-              <td className="px-4 py-2">${item.price.toFixed(2)}</td>
-              <td className="px-4 py-2 flex gap-3">
-                <button className="text-yellow-400 hover:text-yellow-500">
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button className="text-red-500 hover:text-red-600">
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
+          {loading ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                Loading tables...
               </td>
             </tr>
-          ))}
+          ) : err ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-red-400">
+                {err}
+              </td>
+            </tr>
+          ) : data.length > 0 ? (
+            data.map((item) => (
+              <tr
+                key={item._id}
+                className="hover:bg-gray-700 border-b border-gray-800"
+              >
+                <td className="px-4 py-2">{item?.name}</td>
+                <td className="px-4 py-2 flex gap-3">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="text-yellow-400 hover:text-yellow-500"
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="text-red-500 hover:text-red-600">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                No tables found
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
@@ -126,16 +138,6 @@ export default function Menu() {
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white mb-3"
               placeholder="Enter menu item name"
-            />
-
-            <label className="block mb-2 text-sm">Price ($)</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
-              placeholder="Enter price"
             />
 
             <button

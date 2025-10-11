@@ -1,45 +1,64 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
-  faReply,
   faEdit,
   faPlus,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import useTable from "../hooks/useTable";
 
 export default function Tables() {
+  const { data = [], loading, err, createTable, updateTable } = useTable();
+
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null); // ✅ to detect edit mode
   const [formData, setFormData] = useState({
     name: "",
     status: "available",
   });
 
+  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Save or update table
   const handleSave = async () => {
     try {
-      console.log("Table data to send:", formData);
-
-      // Example POST request
-      /*
-      const res = await fetch("http://localhost:5000/api/tables", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
-      console.log("Server response:", result);
-      */
+      if (editingId) {
+        // UPDATE mode
+        const status = formData.status === "available";
+        await updateTable(editingId, status);
+      } else {
+        // CREATE mode
+        await createTable(Number(formData.name));
+      }
 
       setFormData({ name: "", status: "available" });
+      setEditingId(null);
       setShowModal(false);
     } catch (error) {
       console.error("Error saving table:", error);
     }
+  };
+
+  // ✅ Open modal in edit mode
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.number,
+      status: item.isAvailable ? "available" : "booked",
+    });
+    setEditingId(item._id);
+    setShowModal(true);
+  };
+
+  // ✅ Close modal
+  const closeModal = () => {
+    setFormData({ name: "", status: "available" });
+    setEditingId(null);
+    setShowModal(false);
   };
 
   return (
@@ -68,23 +87,54 @@ export default function Tables() {
             <th className="px-4 py-2 text-center">Action</th>
           </tr>
         </thead>
+
         <tbody>
-          {/* Example row */}
-          <tr className="hover:bg-gray-700 transition-all duration-200">
-            <td className="px-4 py-2 font-medium">Table 1</td>
-            <td className="px-4 py-2 text-green-400">Available</td>
-            <td className="px-4 py-2 flex gap-3 justify-center">
-              <button className="text-red-400 hover:text-red-500">
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
-              <button className="text-blue-400 hover:text-blue-500">
-                <FontAwesomeIcon icon={faReply} />
-              </button>
-              <button className="text-green-400 hover:text-green-500">
-                <FontAwesomeIcon icon={faEdit} />
-              </button>
-            </td>
-          </tr>
+          {loading ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                Loading tables...
+              </td>
+            </tr>
+          ) : err ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-red-400">
+                {err}
+              </td>
+            </tr>
+          ) : data.length > 0 ? (
+            data.map((item) => (
+              <tr
+                key={item?._id}
+                className="hover:bg-gray-700 transition-all duration-200"
+              >
+                <td className="px-4 py-2 font-medium">Table {item?.number}</td>
+                <td
+                  className={`px-4 py-2 font-semibold ${
+                    item?.isAvailable ? "text-green-400" : "text-yellow-400"
+                  }`}
+                >
+                  {item?.isAvailable ? "Available" : "Booked"}
+                </td>
+                <td className="px-4 py-2 flex gap-3 justify-center">
+                  <button className="text-red-400 hover:text-red-500">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="text-green-400 hover:text-green-500 cursor-pointer"
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                No tables found
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
@@ -94,18 +144,20 @@ export default function Tables() {
           <div className="bg-gray-900 p-6 rounded-2xl w-[90%] sm:w-[400px] relative shadow-2xl animate-scaleIn">
             {/* CLOSE BUTTON */}
             <button
-              onClick={() => setShowModal(false)}
+              onClick={closeModal}
               className="absolute top-3 right-3 text-gray-400 hover:text-white"
             >
               <FontAwesomeIcon icon={faXmark} />
             </button>
 
-            <h3 className="text-xl font-semibold mb-4">Add New Table</h3>
+            <h3 className="text-xl font-semibold mb-4">
+              {editingId ? "Edit Table" : "Add New Table"}
+            </h3>
 
             {/* INPUTS */}
-            <label className="block mb-2 text-sm">Table Name / Number</label>
+            <label className="block mb-2 text-sm">Table Number</label>
             <input
-              type="text"
+              type="number"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -121,8 +173,7 @@ export default function Tables() {
               className="w-full text-white mb-3 bg-gray-700 p-2 rounded"
             >
               <option value="available">Available</option>
-              <option value="occupied">Occupied</option>
-              <option value="reserved">Reserved</option>
+              <option value="booked">Booked</option>
             </select>
 
             {/* SAVE BUTTON */}
@@ -130,7 +181,7 @@ export default function Tables() {
               onClick={handleSave}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200"
             >
-              Save
+              {editingId ? "Update Table" : "Save"}
             </button>
           </div>
         </div>

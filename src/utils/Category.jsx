@@ -1,45 +1,34 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
-  faReply,
   faEdit,
   faPlus,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
+import useCategory from "../hooks/useCategory";
+import useMenu from "../hooks/useMenu";
 
 export default function Category() {
+  const { data: menu = [] } = useMenu();
+  const { data = [], loading, err, createCategory } = useCategory();
+
   const [showModal, setShowModal] = useState(false);
-  const [data, setData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     menu: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
     try {
-      // Example request body
-      const body = { name: data.name, menu: data.menu };
+      await createCategory(formData.name, formData.menu); // if your hook supports it
 
-      console.log("Category data to send:", body);
-
-      // Example POST request (uncomment when backend is ready)
-      /*
-      const response = await fetch("http://localhost:5000/api/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const result = await response.json();
-      console.log("Server response:", result);
-      */
-
-      // Reset form
-      setData({ name: "", menu: "" });
+      setFormData({ name: "", menu: "" });
       setShowModal(false);
     } catch (error) {
       console.error("Error saving category:", error);
@@ -73,22 +62,43 @@ export default function Category() {
           </tr>
         </thead>
         <tbody>
-          {/* Example row */}
-          <tr className="hover:bg-gray-700 transition-all duration-200">
-            <td className="px-4 py-2 font-medium">Main Dish</td>
-            <td className="px-4 py-2">Main Menu</td>
-            <td className="px-4 py-2 flex gap-3 justify-center">
-              <button className="text-red-400 hover:text-red-500">
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
-              <button className="text-blue-400 hover:text-blue-500">
-                <FontAwesomeIcon icon={faReply} />
-              </button>
-              <button className="text-green-400 hover:text-green-500">
-                <FontAwesomeIcon icon={faEdit} />
-              </button>
-            </td>
-          </tr>
+          {loading ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                Loading categories...
+              </td>
+            </tr>
+          ) : err ? (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-red-400">
+                {err}
+              </td>
+            </tr>
+          ) : data.length > 0 ? (
+            data.map((item) => (
+              <tr
+                key={item._id}
+                className="hover:bg-gray-700 border-b border-gray-800"
+              >
+                <td className="px-4 py-2">{item?.name}</td>
+                <td className="px-4 py-2">{item?.menu?.name}</td>
+                <td className="px-4 py-2 flex gap-3">
+                  <button className="text-yellow-400 hover:text-yellow-500">
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="text-red-500 hover:text-red-600">
+                    <FontAwesomeIcon icon={faTrash} />
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="3" className="text-center py-4 text-gray-400">
+                No categories found
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
@@ -111,7 +121,7 @@ export default function Category() {
             <input
               type="text"
               name="name"
-              value={data.name}
+              value={formData.name}
               onChange={handleChange}
               className="w-full p-2 rounded bg-gray-700 text-white mb-3"
               placeholder="Enter category name"
@@ -121,13 +131,15 @@ export default function Category() {
             <select
               className="w-full text-white mb-3 bg-gray-700 p-2 rounded"
               name="menu"
-              value={data.menu}
+              value={formData.menu}
               onChange={handleChange}
             >
-              <option value="">Select menu</option>
-              <option value="main">Main Menu</option>
-              <option value="dessert">Dessert</option>
-              <option value="drink">Drink</option>
+              <option value="">Select Menu</option>
+              {menu.map((item) => (
+                <option key={item._id} value={item._id}>
+                  {item.name}
+                </option>
+              ))}
             </select>
 
             {/* SAVE BUTTON */}
