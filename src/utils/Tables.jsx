@@ -9,7 +9,14 @@ import { useState } from "react";
 import useTable from "../hooks/useTable";
 
 export default function Tables() {
-  const { data = [], loading, err, createTable, updateTable } = useTable();
+  const {
+    data = [],
+    loading,
+    err,
+    createTable,
+    updateTable,
+    deleteTable,
+  } = useTable();
 
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null); // ✅ to detect edit mode
@@ -41,6 +48,13 @@ export default function Tables() {
       setShowModal(false);
     } catch (error) {
       console.error("Error saving table:", error);
+    }
+  };
+
+  // 🗑 Delete dish
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this table?")) {
+      deleteTable(id);
     }
   };
 
@@ -116,7 +130,10 @@ export default function Tables() {
                   {item?.isAvailable ? "Available" : "Booked"}
                 </td>
                 <td className="px-4 py-2 flex gap-3 justify-center">
-                  <button className="text-red-400 hover:text-red-500">
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="text-red-400 hover:text-red-500 cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                   <button

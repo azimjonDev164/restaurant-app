@@ -11,9 +11,17 @@ import useMenu from "../hooks/useMenu";
 
 export default function Category() {
   const { data: menu = [] } = useMenu();
-  const { data = [], loading, err, createCategory } = useCategory();
+  const {
+    data = [],
+    loading,
+    err,
+    createCategory,
+    deleteCategory,
+    updateCategory,
+  } = useCategory();
 
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     menu: "",
@@ -26,13 +34,32 @@ export default function Category() {
 
   const handleSave = async () => {
     try {
-      await createCategory(formData.name, formData.menu); // if your hook supports it
+      if (editingId) {
+        await updateCategory(editingId, formData);
+      } else {
+        await createCategory(formData.name, formData.menu); // if your hook supports it
+      }
 
       setFormData({ name: "", menu: "" });
       setShowModal(false);
     } catch (error) {
       console.error("Error saving category:", error);
     }
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this category?")) {
+      deleteCategory(id);
+    }
+  };
+
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.name,
+      menu: item?.menu?._id,
+    });
+    setEditingId(item._id);
+    setShowModal(true);
   };
 
   return (
@@ -83,10 +110,16 @@ export default function Category() {
                 <td className="px-4 py-2">{item?.name}</td>
                 <td className="px-4 py-2">{item?.menu?.name}</td>
                 <td className="px-4 py-2 flex gap-3">
-                  <button className="text-yellow-400 hover:text-yellow-500">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="text-yellow-400 hover:text-yellow-500 cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
-                  <button className="text-red-500 hover:text-red-600">
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="text-red-500 hover:text-red-600 cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </td>
@@ -147,7 +180,7 @@ export default function Category() {
               onClick={handleSave}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200"
             >
-              Save
+              {editingId ? "Update category" : "Save"}
             </button>
           </div>
         </div>

@@ -46,7 +46,9 @@ export default function Dishes() {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("price", data.price);
-      formData.append("categoryId", data.categoryId);
+      editingId
+        ? formData.append("category", data.categoryId)
+        : formData.append("categoryId", data.categoryId);
       if (data.image) formData.append("image", data.image);
       if (editingId) {
         await updateDish(editingId, formData);
@@ -150,16 +152,13 @@ export default function Dishes() {
                 <td className="px-4 py-2 flex gap-3 justify-center">
                   <button
                     onClick={() => handleDelete(item._id)}
-                    className="text-red-400 hover:text-red-500"
+                    className="text-red-400 hover:text-red-500 cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
-                  <button className="text-blue-400 hover:text-blue-500">
-                    <FontAwesomeIcon icon={faReply} />
-                  </button>
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-green-400 hover:text-green-500"
+                    className="text-green-400 hover:text-green-500 cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
@@ -249,7 +248,7 @@ export default function Dishes() {
               type="submit"
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200"
             >
-              Save
+              {editingId ? "Update dish" : "Save"}
             </button>
           </form>
         </div>

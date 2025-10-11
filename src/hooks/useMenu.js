@@ -29,8 +29,28 @@ export default function useMenu() {
       setErr(error.message);
     }
   };
-  const updateMenu = async () => {};
-  const deleteMenu = async () => {};
+  
+  const updateMenu = async (id, name) => {
+    try {
+      const res = await API.put(`/menu/${id}`, { name });
+      setData((prev) =>
+        prev.map((item) => (item._id === id ? res.data : item))
+      );
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+      setErr(error.message);
+    }
+  };
+
+  const deleteMenu = async (id) => {
+    try {
+      await API.delete(`/menu/${id}`);
+      setData((prev) => prev.filter((item) => item._id !== id));
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+      setErr(error.message);
+    }
+  };
 
   useEffect(() => {
     getAllMenus();

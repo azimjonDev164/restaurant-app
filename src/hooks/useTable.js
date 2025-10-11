@@ -41,9 +41,28 @@ export default function useTable() {
     }
   };
 
+  // ✅ Delete dish
+  const deleteTable = async (id) => {
+    try {
+      await API.delete(`/table/${id}`);
+      setData((prev) => prev.filter((item) => item._id !== id));
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+      setErr(error.message);
+    }
+  };
+
   useEffect(() => {
     getTables();
   }, []);
 
-  return { data, loading, err, createTable, updateTable, getTables };
+  return {
+    data,
+    loading,
+    err,
+    createTable,
+    updateTable,
+    getTables,
+    deleteTable,
+  };
 }

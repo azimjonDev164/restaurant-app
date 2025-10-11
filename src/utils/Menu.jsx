@@ -9,7 +9,7 @@ import { useState } from "react";
 import useMenu from "../hooks/useMenu";
 
 export default function Menu() {
-  const { data, loading, err, createMenu, updateMenu } = useMenu();
+  const { data, loading, err, createMenu, updateMenu, deleteMenu } = useMenu();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -37,6 +37,13 @@ export default function Menu() {
       setShowModal(false);
     } catch (error) {
       console.error("Error saving table:", error);
+    }
+  };
+
+  // 🗑 Delete dish
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this menu?")) {
+      deleteMenu(id);
     }
   };
 
@@ -97,11 +104,14 @@ export default function Menu() {
                 <td className="px-4 py-2 flex gap-3">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-yellow-400 hover:text-yellow-500"
+                    className="text-yellow-400 hover:text-yellow-500 cursor-pointer"
                   >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
-                  <button className="text-red-500 hover:text-red-600">
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="text-red-500 hover:text-red-600 cursor-pointer"
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </td>
@@ -144,7 +154,7 @@ export default function Menu() {
               onClick={handleSubmit}
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3"
             >
-              Save
+              {editingId ? "Update menu" : "Save"}
             </button>
           </div>
         </div>

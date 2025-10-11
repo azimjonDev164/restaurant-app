@@ -29,12 +29,38 @@ export default function useCategory() {
       setErr(error.message);
     }
   };
-  const updateCategory = async () => {};
-  const deleteCategory = async () => {};
+  const updateCategory = async (id, body) => {
+    try {
+      const res = await API.put(`/category/${id}`, body);
+      setData((prev) =>
+        prev.map((item) => (item._id === id ? res.data : item))
+      );
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+      setErr(error.message);
+    }
+  };
+  const deleteCategory = async (id) => {
+    try {
+      await API.delete(`/category/${id}`);
+      setData((prev) => prev.filter((dish) => dish._id !== id));
+    } catch (error) {
+      console.error("Error deleting dish:", error);
+      setErr(error.message);
+    }
+  };
 
   useEffect(() => {
     getAllCategories();
   }, []);
 
-  return { data, loading, err, createCategory, updateCategory, deleteCategory, getAllCategories};
+  return {
+    data,
+    loading,
+    err,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    getAllCategories,
+  };
 }
