@@ -11,9 +11,7 @@ export const SearchProvider = ({ children }) => {
   const searchHandler = () => {
     if (search.length) {
       navigate("/search");
-    } else {
-      navigate("/"); // if empty, go home
-    }
+    } 
   };
 
   return (

@@ -3,6 +3,7 @@ import API from "../services/api";
 
 export default function useTable() {
   const [data, setData] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
@@ -19,9 +20,9 @@ export default function useTable() {
     }
   };
 
-  const createTable = async (number) => {
+  const createTable = async (number, seat) => {
     try {
-      const res = await API.post("/table", { number });
+      const res = await API.post("/table", { number, seat });
       setData((prev) => [...prev, res.data]);
     } catch (error) {
       console.error("Error adding table:", error);
@@ -58,6 +59,7 @@ export default function useTable() {
 
   return {
     data,
+
     loading,
     err,
     createTable,

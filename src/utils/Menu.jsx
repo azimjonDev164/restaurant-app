@@ -152,7 +152,7 @@ export default function Menu() {
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 cursor-pointer"
             >
               {editingId ? "Update menu" : "Save"}
             </button>

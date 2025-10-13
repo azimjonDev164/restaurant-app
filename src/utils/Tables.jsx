@@ -22,6 +22,7 @@ export default function Tables() {
   const [editingId, setEditingId] = useState(null); // ✅ to detect edit mode
   const [formData, setFormData] = useState({
     name: "",
+    seat: "",
     status: "available",
   });
 
@@ -40,7 +41,7 @@ export default function Tables() {
         await updateTable(editingId, status);
       } else {
         // CREATE mode
-        await createTable(Number(formData.name));
+        await createTable(Number(formData.name), Number(formData.seat));
       }
 
       setFormData({ name: "", status: "available" });
@@ -62,6 +63,7 @@ export default function Tables() {
   const handleEdit = (item) => {
     setFormData({
       name: item.number,
+      seat: item.seat,
       status: item.isAvailable ? "available" : "booked",
     });
     setEditingId(item._id);
@@ -70,7 +72,7 @@ export default function Tables() {
 
   // ✅ Close modal
   const closeModal = () => {
-    setFormData({ name: "", status: "available" });
+    setFormData({ name: "", seat: "", status: "available" });
     setEditingId(null);
     setShowModal(false);
   };
@@ -97,6 +99,7 @@ export default function Tables() {
         <thead>
           <tr className="bg-gray-700 text-gray-300">
             <th className="px-4 py-2">Table Number</th>
+            <th className="px-4 py-2">Table Seats</th>
             <th className="px-4 py-2">Status</th>
             <th className="px-4 py-2 text-center">Action</th>
           </tr>
@@ -122,6 +125,7 @@ export default function Tables() {
                 className="hover:bg-gray-700 transition-all duration-200"
               >
                 <td className="px-4 py-2 font-medium">Table {item?.number}</td>
+                <td className="px-4 py-2 font-medium">{item?.seat}</td>
                 <td
                   className={`px-4 py-2 font-semibold ${
                     item?.isAvailable ? "text-green-400" : "text-yellow-400"
@@ -181,7 +185,15 @@ export default function Tables() {
               className="w-full p-2 rounded bg-gray-700 text-white mb-3"
               placeholder="Enter table name or number"
             />
-
+            <label className="block mb-2 text-sm">Table seats</label>
+            <input
+              type="number"
+              name="seat"
+              value={formData.seat}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-700 text-white mb-3"
+              placeholder="Enter table seats"
+            />
             <label className="block mb-2 text-sm">Status</label>
             <select
               name="status"
@@ -196,7 +208,7 @@ export default function Tables() {
             {/* SAVE BUTTON */}
             <button
               onClick={handleSave}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200 cursor-pointer"
             >
               {editingId ? "Update Table" : "Save"}
             </button>

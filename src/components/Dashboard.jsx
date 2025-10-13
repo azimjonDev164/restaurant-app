@@ -7,32 +7,34 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Category, Dishes, Menu, Tables } from "../utils";
+import useGetAllAmout from "../hooks/useGetAllAmout";
 
 function Dashboard() {
   const [activeSection, setActiveSection] = useState("Dishes");
+  const { dishes, menus, categories, tables } = useGetAllAmout();
 
   const cards = [
     {
       title: "Dishes",
-      value: 19,
+      value: dishes,
       icon: faUtensils,
       color: "from-green-400 to-emerald-600",
     },
     {
       title: "Category",
-      value: 8,
+      value: categories,
       icon: faFolder,
       color: "from-blue-400 to-cyan-600",
     },
     {
       title: "Tables",
-      value: 12,
+      value: tables,
       icon: faChair,
       color: "from-pink-400 to-rose-600",
     },
     {
       title: "Menu",
-      value: 5,
+      value: menus,
       icon: faBookOpen,
       color: "from-yellow-400 to-orange-600",
     },

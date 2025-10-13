@@ -246,7 +246,7 @@ export default function Dishes() {
             {/* SAVE BUTTON */}
             <button
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg mt-3 transition-all duration-200 cursor-pointer"
             >
               {editingId ? "Update dish" : "Save"}
             </button>

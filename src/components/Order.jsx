@@ -4,87 +4,28 @@ import {
   faPlus,
   faMinus,
   faShoppingCart,
-  faTags,
   faUtensils,
 } from "@fortawesome/free-solid-svg-icons";
-
-const filters = ["foods", "drinks", "desserts"];
-
-const products = {
-  foods: [
-    {
-      id: 1,
-      name: "Classic Burger",
-      description: "Juicy grilled beef patty with cheese and fresh veggies.",
-      price: 12,
-      image:
-        "https://thedeliciousspoon.com/wp-content/uploads/2019/04/Burger-pic-pin-1.jpg",
-      tags: ["Food", "Special"],
-      status: "NEW",
-    },
-    {
-      id: 2,
-      name: "Grilled Steak",
-      description: "Perfectly grilled steak with herbs and spices.",
-      price: 25,
-      image:
-        "https://www.recipetineats.com/wp-content/uploads/2018/11/Grilled-Steak.jpg",
-      tags: ["Food", "Premium"],
-      status: "HOT",
-    },
-  ],
-  drinks: [
-    {
-      id: 3,
-      name: "Fresh Orange Juice",
-      description: "Refreshing juice made from organic oranges.",
-      price: 6,
-      image:
-        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/orange-juice.jpg",
-      tags: ["Drink", "Healthy"],
-      status: "NEW",
-    },
-    {
-      id: 4,
-      name: "Iced Coffee",
-      description: "Cold brewed coffee with a touch of sweetness.",
-      price: 5,
-      image:
-        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/iced-coffee.jpg",
-      tags: ["Drink", "Coffee"],
-      status: "POPULAR",
-    },
-  ],
-  desserts: [
-    {
-      id: 5,
-      name: "Chocolate Cake",
-      description: "Rich chocolate cake with creamy layers.",
-      price: 8,
-      image:
-        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/summer-desserts.jpg",
-      tags: ["Dessert", "Sweet"],
-      status: "BEST",
-    },
-    {
-      id: 6,
-      name: "Vanilla Ice Cream",
-      description: "Classic vanilla ice cream topped with caramel sauce.",
-      price: 7,
-      image:
-        "https://cdn.loveandlemons.com/wp-content/uploads/2021/06/summer-desserts.jpg",
-      tags: ["Dessert", "Cold"],
-      status: "NEW",
-    },
-  ],
-};
+import useDish from "../hooks/useDish";
+import useCategory from "../hooks/useCategory";
 
 function Order({ tableId }) {
-  const [filter, setFilter] = useState("foods");
+  const { data: filters = [] } = useCategory();
+  const { data: dishes = [] } = useDish();
+  const [filter, setFilter] = useState("");
   const [cart, setCart] = useState({});
 
-  const productList = products[filter] || [];
+  // ✅ Select default filter to first category
+  if (!filter && filters.length > 0) {
+    setFilter(filters[0].name.toLowerCase());
+  }
 
+  // ✅ Filter dishes by selected category
+  const productList = dishes.filter(
+    (dish) => dish.category?.name?.toLowerCase() === filter
+  );
+
+  // ✅ Add dish to cart
   const increase = (id) => {
     setCart((prev) => ({
       ...prev,
@@ -92,6 +33,7 @@ function Order({ tableId }) {
     }));
   };
 
+  // ✅ Remove dish from cart
   const decrease = (id) => {
     setCart((prev) => {
       if (!prev[id]) return prev;
@@ -101,33 +43,31 @@ function Order({ tableId }) {
     });
   };
 
+  // ✅ Calculate total price safely
   const getTotalPrice = () => {
     return Object.entries(cart).reduce((total, [id, qty]) => {
-      const product = Object.values(products)
-        .flat()
-        .find((p) => p.id === +id);
-      return total + product.price * qty;
+      const product = dishes.find((p) => p._id === id);
+      return product ? total + product.price * qty : total;
     }, 0);
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 md:px-12 py-8  min-h-screen text-white font-sans">
+    <div className="flex flex-col md:flex-row gap-6 md:px-12 py-8 min-h-screen text-white font-sans">
       {/* LEFT - Products */}
       <div className="flex-1 flex flex-col gap-8">
-        {/* FILTER TABS */}
+        {/* FILTER BUTTONS */}
         <div className="flex gap-4 sticky top-0 z-20 bg-gray-900/95 backdrop-blur-sm py-4 px-4 rounded-xl shadow-lg">
           {filters.map((item) => (
             <button
-              key={item}
-              onClick={() => setFilter(item)}
-              className={`px-6 py-2.5 rounded-full font-medium capitalize text-sm tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 ${
-                item === filter
+              key={item._id}
+              onClick={() => setFilter(item.name.toLowerCase())}
+              className={`px-6 py-2.5 rounded-full font-medium capitalize text-sm tracking-wide transition-all duration-300 ${
+                item.name.toLowerCase() === filter
                   ? "bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-lg"
                   : "bg-gray-700/80 text-gray-200 hover:bg-gray-600 hover:text-white"
               }`}
-              aria-pressed={item === filter}
             >
-              {item}
+              {item.name}
             </button>
           ))}
         </div>
@@ -136,64 +76,33 @@ function Order({ tableId }) {
         <div className="flex flex-wrap gap-6">
           {productList.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="group w-[270px] h-[350px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 hover:shadow-2xl transition-all duration-300 p-5 flex flex-col"
-              role="article"
-              aria-labelledby={`product-${item.id}`}
             >
               {/* IMAGE */}
               <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
                 <img
-                  src={item.image}
+                  src={
+                    item?.image?.startsWith("http")
+                      ? item.image
+                      : `http://localhost:3000${item.image}`
+                  }
                   alt={item.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
-                <span
-                  className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
-                    item.status === "NEW"
-                      ? "bg-green-500"
-                      : item.status === "HOT"
-                      ? "bg-red-500"
-                      : item.status === "POPULAR"
-                      ? "bg-blue-500"
-                      : "bg-yellow-500"
-                  } text-white`}
-                >
-                  {item.status}
-                </span>
               </div>
 
               {/* CONTENT */}
               <div className="flex flex-col justify-between flex-1">
                 <div>
-                  <h2
-                    id={`product-${item.id}`}
-                    className="text-xl font-bold flex items-center gap-2 text-white"
-                  >
+                  <h2 className="text-xl font-bold flex items-center gap-2 text-white">
                     <FontAwesomeIcon
                       icon={faUtensils}
                       className="text-yellow-400"
                     />
                     {item.name}
                   </h2>
-                  <p className="text-sm text-gray-300 line-clamp-2 mt-2">
-                    {item.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {item.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs bg-gray-700/60 px-2.5 py-1 rounded-full flex items-center gap-1.5 text-gray-200 border border-gray-600"
-                      >
-                        <FontAwesomeIcon
-                          icon={faTags}
-                          className="text-yellow-400"
-                        />
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* PRICE + CONTROLS */}
@@ -201,30 +110,28 @@ function Order({ tableId }) {
                   <span className="text-xl font-bold text-yellow-400">
                     ${item.price.toFixed(2)}
                   </span>
-                  {!cart[item.id] ? (
+
+                  {!cart[item._id] ? (
                     <button
-                      onClick={() => increase(item.id)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-sm font-semibold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      aria-label={`Add ${item.name} to cart`}
+                      onClick={() => increase(item._id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-sm font-semibold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                     >
                       <FontAwesomeIcon icon={faPlus} /> Add
                     </button>
                   ) : (
                     <div className="flex items-center gap-3">
                       <button
-                        onClick={() => decrease(item.id)}
-                        className="w-9 h-9 flex items-center justify-center bg-gray-700 rounded-full hover:bg-gray-600 transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                        aria-label={`Decrease quantity of ${item.name}`}
+                        onClick={() => decrease(item._id)}
+                        className="w-9 h-9 flex items-center justify-center bg-gray-700 rounded-full hover:bg-gray-600 transition"
                       >
                         <FontAwesomeIcon icon={faMinus} />
                       </button>
                       <span className="text-base font-semibold text-white">
-                        {cart[item.id]}
+                        {cart[item._id]}
                       </span>
                       <button
-                        onClick={() => increase(item.id)}
-                        className="w-9 h-9 flex items-center justify-center bg-yellow-500 rounded-full hover:bg-yellow-600 transition focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                        aria-label={`Increase quantity of ${item.name}`}
+                        onClick={() => increase(item._id)}
+                        className="w-9 h-9 flex items-center justify-center bg-yellow-500 rounded-full hover:bg-yellow-600 transition"
                       >
                         <FontAwesomeIcon icon={faPlus} />
                       </button>
@@ -237,7 +144,7 @@ function Order({ tableId }) {
         </div>
       </div>
 
-      {/* RIGHT - ORDER SUMMARY */}
+      {/* RIGHT - CART */}
       <div className="w-full md:w-[360px] sticky top-1 bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl shadow-2xl border border-gray-700 p-6 flex flex-col h-[85vh]">
         <h3 className="text-2xl font-bold mb-3 flex items-center gap-2">
           <FontAwesomeIcon icon={faShoppingCart} className="text-yellow-400" />
@@ -253,9 +160,8 @@ function Order({ tableId }) {
           <>
             <ul className="flex flex-col gap-3 flex-1 overflow-y-auto pr-2 mb-4">
               {Object.entries(cart).map(([id, qty]) => {
-                const product = Object.values(products)
-                  .flat()
-                  .find((p) => p.id === +id);
+                const product = dishes.find((p) => p._id === id);
+                if (!product) return null;
                 return (
                   <li
                     key={id}
@@ -285,9 +191,8 @@ function Order({ tableId }) {
         )}
 
         <button
-          className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={Object.keys(cart).length === 0}
-          aria-label="Proceed to order"
         >
           Order Now
         </button>
