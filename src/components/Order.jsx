@@ -8,47 +8,61 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useDish from "../hooks/useDish";
 import useCategory from "../hooks/useCategory";
+import useOrder from "../hooks/useOrder"; // ✅ Import here
+import { useNavigate } from "react-router-dom";
 
-function Order({ tableId }) {
+function Order({ tableId, reservationId }) {
+  const { createOrder, userData } = useOrder(); // ✅ Access order logic
   const { data: filters = [] } = useCategory();
   const { data: dishes = [] } = useDish();
   const [filter, setFilter] = useState("");
   const [cart, setCart] = useState({});
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // ✅ Select default filter to first category
-  if (!filter && filters.length > 0) {
-    setFilter(filters[0].name.toLowerCase());
-  }
+  if (!filter && filters.length > 0) setFilter(filters[0].name.toLowerCase());
 
-  // ✅ Filter dishes by selected category
   const productList = dishes.filter(
     (dish) => dish.category?.name?.toLowerCase() === filter
   );
 
-  // ✅ Add dish to cart
-  const increase = (id) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
-  };
+  const increase = (id) =>
+    setCart((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
 
-  // ✅ Remove dish from cart
-  const decrease = (id) => {
+  const decrease = (id) =>
     setCart((prev) => {
       if (!prev[id]) return prev;
       const updated = { ...prev, [id]: prev[id] - 1 };
       if (updated[id] <= 0) delete updated[id];
       return updated;
     });
-  };
 
-  // ✅ Calculate total price safely
-  const getTotalPrice = () => {
-    return Object.entries(cart).reduce((total, [id, qty]) => {
+  const getTotalPrice = () =>
+    Object.entries(cart).reduce((total, [id, qty]) => {
       const product = dishes.find((p) => p._id === id);
       return product ? total + product.price * qty : total;
     }, 0);
+
+  // ✅ Handle order submission
+  const handleOrderNow = async () => {
+    setLoading(true);
+    try {
+      const items = Object.entries(cart).map(([id, qty]) => ({
+        dishId: id,
+        quantity: qty,
+      }));
+
+      const res = await createOrder(userData._id, items, reservationId);
+      if (res?.order) {
+        alert("✅ Order placed successfully!");
+        setCart({});
+      }
+      navigate("/orders");
+    } catch (err) {
+      alert("❌ Failed to place order. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -79,7 +93,6 @@ function Order({ tableId }) {
               key={item._id}
               className="group w-[270px] h-[350px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-xl border border-gray-700 hover:border-yellow-400 hover:shadow-2xl transition-all duration-300 p-5 flex flex-col"
             >
-              {/* IMAGE */}
               <div className="relative w-full h-48 rounded-xl overflow-hidden mb-4">
                 <img
                   src={
@@ -92,25 +105,18 @@ function Order({ tableId }) {
                   loading="lazy"
                 />
               </div>
-
-              {/* CONTENT */}
               <div className="flex flex-col justify-between flex-1">
-                <div>
-                  <h2 className="text-xl font-bold flex items-center gap-2 text-white">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="text-yellow-400"
-                    />
-                    {item.name}
-                  </h2>
-                </div>
-
-                {/* PRICE + CONTROLS */}
+                <h2 className="text-xl font-bold flex items-center gap-2 text-white">
+                  <FontAwesomeIcon
+                    icon={faUtensils}
+                    className="text-yellow-400"
+                  />
+                  {item.name}
+                </h2>
                 <div className="flex justify-between items-center mt-4">
                   <span className="text-xl font-bold text-yellow-400">
                     ${item.price.toFixed(2)}
                   </span>
-
                   {!cart[item._id] ? (
                     <button
                       onClick={() => increase(item._id)}
@@ -191,10 +197,11 @@ function Order({ tableId }) {
         )}
 
         <button
+          onClick={handleOrderNow}
+          disabled={Object.keys(cart).length === 0 || loading}
           className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={Object.keys(cart).length === 0}
         >
-          Order Now
+          {loading ? "Placing Order..." : "Order Now"}
         </button>
       </div>
     </div>

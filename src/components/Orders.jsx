@@ -1,51 +1,69 @@
 import { useUser } from "@clerk/clerk-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faClipboardList,
-  faUtensils,
-  faCoffee,
+  faEdit,
+  faTrash,
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
-
-const orders = [
-  {
-    id: 1,
-    table: 3,
-    date: "2025-10-09 15:09:25",
-    status: "In Progress",
-    items: [
-      { type: "food", name: "Classic Burger", quantity: 2 },
-      { type: "drink", name: "Iced Coffee", quantity: 1 },
-    ],
-  },
-  {
-    id: 2,
-    table: 6,
-    date: "2025-10-09 14:30:00",
-    status: "Completed",
-    items: [
-      { type: "food", name: "Grilled Steak", quantity: 1 },
-      { type: "dessert", name: "Chocolate Cake", quantity: 1 },
-    ],
-  },
-  {
-    id: 3,
-    table: 4,
-    date: "2025-10-09 13:15:00",
-    status: "Preparing",
-    items: [{ type: "drink", name: "Orange Juice", quantity: 2 }],
-  },
-  // Add more sample orders as needed
-];
+import useOrder from "../hooks/useOrder";
+import { useEffect, useState } from "react";
+import useOrderItem from "../hooks/useOrderItem";
 
 function Orders() {
+  const { deleteOrderItem, updateOrderItem } = useOrderItem();
   const { isSignedIn, user, isLoaded } = useUser();
+  const { getAllOrdersByUserId, userData } = useOrder();
+  const [orders, setOrders] = useState([]);
+  const [del, setDet] = useState(null);
+  const [edit, setEdit] = useState({
+    isShow: false,
+    itemId: null,
+    quantity: "",
+  });
+
+  // ✅ Proper useEffect call
+  useEffect(() => {
+    if (!userData?._id) return;
+
+    const fetchOrders = async () => {
+      try {
+        const res = await getAllOrdersByUserId(userData._id);
+        setOrders(res);
+      } catch (err) {
+        console.error("❌ Error loading orders:", err.message);
+      }
+    };
+
+    fetchOrders();
+  }, [userData, edit?.quantity, del]); // <-- re-run when userData changes
+  // ✅ Conditional rendering after hooks
+
+  // 🗑 Delete dish
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this order item?")) {
+      deleteOrderItem(id);
+      setDet(id);
+    }
+  };
+
+  // 🧠 Update the handleEdit function
+  const handleEdit = async (id) => {
+    try {
+      const res = await updateOrderItem(id, edit.quantity);
+      console.log(res.data);
+
+      // reset edit state after saving
+      setEdit({ isShow: false, itemId: null, quantity: "" });
+    } catch (error) {
+      console.log("Error", error.message);
+    }
+  };
 
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 to-gray-800">
         <p className="text-3xl font-semibold text-white animate-pulse">
-          Loading user...
+          Loading your orders...
         </p>
       </div>
     );
@@ -67,17 +85,16 @@ function Orders() {
 
   return (
     <div className="min-h-screen w-full py-6 px-1 md:p-10">
-      {/* Header Section */}
       <div className="border-b-2 border-dashed border-gray-700 pb-6 mb-8">
         <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
           Your Orders
         </h1>
         <p className="text-gray-300 mt-3 text-lg">
-          Welcome, {user.firstName || "Guest"}! Track your recent orders below.
+          Welcome, {user?.firstName || "Guest"}! Track your recent orders below.
         </p>
       </div>
 
-      {/* Activity Table with Drawer */}
+      {/* 🧾 Orders Table */}
       <div className="mt-8">
         <div className="bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-700">
           <table className="table-auto w-full text-left text-white">
@@ -86,6 +103,7 @@ function Orders() {
                 <th className="px-6 py-4 font-semibold">Table</th>
                 <th className="px-6 py-4 font-semibold">Date</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
+                <th className="px-6 py-4 font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
@@ -93,10 +111,10 @@ function Orders() {
                 const drawerId = `drawer-row-${idx}`;
                 return (
                   <tr
-                    key={order.id}
+                    key={order._id}
                     className="hover:bg-gray-700/50 transition-colors duration-200"
                   >
-                    <td colSpan={3} className="p-0">
+                    <td colSpan={4} className="p-0">
                       <div className="drawer drawer-end w-full">
                         <input
                           id={drawerId}
@@ -107,18 +125,20 @@ function Orders() {
                           <label
                             htmlFor={drawerId}
                             className="flex w-full items-center px-6 py-4 cursor-pointer"
-                            aria-label={`Open details for order on table ${order.table}`}
                           >
-                            <span className="w-1/3 font-medium text-gray-100">
-                              Table {order.table}
+                            <span className="w-1/4 font-medium text-gray-100">
+                              Table {order?.reservation?.table?.number || "N/A"}
                             </span>
-                            <span className="w-1/3 text-gray-300">
-                              {new Date(order.date).toLocaleString("en-US", {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                              })}
+                            <span className="w-1/4 text-gray-300">
+                              {new Date(order.createdAt).toLocaleString(
+                                "en-US",
+                                {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                }
+                              )}
                             </span>
-                            <span className="w-1/3">
+                            <span className="w-1/4">
                               <span
                                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                   order.status === "In Progress"
@@ -131,6 +151,14 @@ function Orders() {
                                 {order.status}
                               </span>
                             </span>
+                            <span className="w-1/4 flex justify-start gap-3 items-center">
+                              <button className="text-red-400 hover:text-red-500 cursor-pointer">
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                              <button className="text-green-400 hover:text-green-500 cursor-pointer">
+                                <FontAwesomeIcon icon={faEdit} />
+                              </button>
+                            </span>
                           </label>
                         </div>
 
@@ -138,22 +166,31 @@ function Orders() {
                         <div className="drawer-side z-50">
                           <label
                             htmlFor={drawerId}
-                            aria-label="Close sidebar"
                             className="drawer-overlay"
                           ></label>
                           <div className="bg-gray-900 min-h-full w-80 md:w-96 p-6 text-white space-y-6">
-                            {/* Header */}
-                            <div className="mb-6">
-                              <h2 className="text-2xl font-bold text-white">
-                                Order Details
-                              </h2>
-                              <p className="text-sm text-gray-400 mt-1">
-                                Table {order.table} •{" "}
-                                {new Date(order.date).toLocaleDateString()}
-                              </p>
-                            </div>
+                            <h2 className="text-2xl font-bold">
+                              Order Details
+                            </h2>
+                            <p className="text-sm text-gray-400">
+                              Table {order?.reservation?.table?.number || "N/A"}{" "}
+                              •{" "}
+                              {new Date(
+                                order?.reservation?.startTime
+                              ).toLocaleString("en-US", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}{" "}
+                              -{" "}
+                              {new Date(
+                                order?.reservation?.endTime
+                              ).toLocaleString("en-US", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })}
+                            </p>
 
-                            {/* Ordered Items */}
+                            {/* Items */}
                             <div className="space-y-4">
                               <h3 className="text-lg font-semibold text-gray-200">
                                 Items Ordered
@@ -163,23 +200,80 @@ function Orders() {
                                   key={index}
                                   className="flex items-center gap-3 bg-gray-800/50 rounded-xl p-3 hover:bg-gray-800 transition"
                                 >
-                                  <FontAwesomeIcon
-                                    icon={
-                                      item.type === "food"
-                                        ? faUtensils
-                                        : item.type === "drink"
-                                        ? faCoffee
-                                        : faClipboardList
+                                  <img
+                                    className="w-[60px] h-[60px] rounded-2xl object-cover"
+                                    src={
+                                      item?.dish?.image?.startsWith("http")
+                                        ? item?.dish?.image
+                                        : `http://localhost:3000${item?.dish?.image}`
                                     }
-                                    className="text-yellow-400 text-lg"
+                                    alt={item.name}
                                   />
-                                  <div>
+                                  <div className="flex-1">
                                     <p className="font-medium text-gray-100">
                                       {item.name}
                                     </p>
                                     <p className="text-sm text-gray-400">
-                                      Quantity: {item.quantity}
+                                      Quantity:{" "}
+                                      {edit.isShow &&
+                                      edit.itemId === item._id ? (
+                                        <form
+                                          key={item._id}
+                                          onSubmit={(e) => {
+                                            e.preventDefault();
+                                            handleEdit(item._id);
+                                          }}
+                                        >
+                                          <input
+                                            type="number"
+                                            value={edit.quantity}
+                                            onChange={(e) =>
+                                              setEdit({
+                                                ...edit,
+                                                quantity: e.target.value,
+                                              })
+                                            }
+                                            placeholder="quantity"
+                                            className="bg-gray-700 text-white rounded-md px-2 py-1 w-20"
+                                          />
+                                          <button
+                                            type="submit"
+                                            className="ml-2 text-green-400 hover:text-green-500"
+                                          >
+                                            <FontAwesomeIcon
+                                              icon={faCheckCircle}
+                                            />
+                                          </button>
+                                        </form>
+                                      ) : (
+                                        <>
+                                          {item.quantity}
+                                          <button
+                                            onClick={() =>
+                                              setEdit({
+                                                isShow: true,
+                                                itemId: item._id,
+                                                quantity: item.quantity,
+                                              })
+                                            }
+                                            className="ml-2 text-green-400 hover:text-green-500 cursor-pointer"
+                                          >
+                                            <FontAwesomeIcon icon={faEdit} />
+                                          </button>
+                                        </>
+                                      )}{" "}
+                                      <br />
+                                      Price: $
+                                      {item.quantity * item?.dish?.price}
                                     </p>
+                                  </div>
+                                  <div className="flex gap-1 justify-end">
+                                    <button
+                                      onClick={() => handleDelete(item._id)}
+                                      className="text-red-400 hover:text-red-500 cursor-pointer"
+                                    >
+                                      <FontAwesomeIcon icon={faTrash} />
+                                    </button>
                                   </div>
                                 </div>
                               ))}
@@ -209,13 +303,12 @@ function Orders() {
                               </div>
                             </div>
 
-                            {/* Close Button */}
-                            <button className="mt-6 w-[100px] mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full text-center font-semibold text-white hover:shadow-lg hover:scale-105 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <button className="mt-6 w-[100px] mx-auto bg-gradient-to-r from-yellow-500 to-amber-600 py-3 rounded-full text-center font-semibold text-white hover:shadow-lg hover:scale-105 transition-all">
                               <label
                                 htmlFor={drawerId}
                                 className="h-full w-full cursor-pointer"
                               >
-                                close
+                                Close
                               </label>
                             </button>
                           </div>

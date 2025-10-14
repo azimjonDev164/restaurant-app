@@ -31,7 +31,7 @@ function App() {
         const token = await getToken();
 
         // ✅ send user data to backend properly
-        await API.post(
+        const res = await API.post(
           "/user",
           {
             name: user.fullName,
@@ -43,6 +43,8 @@ function App() {
             },
           }
         );
+
+        localStorage.setItem("userData", JSON.stringify(res.data));
 
         console.log("✅ User synced with backend");
       } catch (error) {
