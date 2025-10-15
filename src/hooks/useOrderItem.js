@@ -7,7 +7,6 @@ export default function useOrderItem() {
       return res.data;
     } catch (error) {
       console.error("Error updating table:", error);
-      setErr(error.message);
     }
   };
 
@@ -17,7 +16,6 @@ export default function useOrderItem() {
       await API.delete(`/orderItem/${id}`);
     } catch (error) {
       console.error("Error deleting dish:", error);
-      setErr(error.message);
     }
   };
 

@@ -53,9 +53,27 @@ export default function useReservation() {
     }
   };
 
+  const getTable = async (tableId) => {
+    try {
+      const res = await API.get(`/table/${tableId}`);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error loading reservations:", error.message);
+      setErr(error.message);
+      return {};
+    }
+  };
+
   useEffect(() => {
     getUser();
   }, []);
 
-  return { createReservation, getAllReservations, loading, err, userData };
+  return {
+    createReservation,
+    getAllReservations,
+    getTable,
+    loading,
+    err,
+    userData,
+  };
 }

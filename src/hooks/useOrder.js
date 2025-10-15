@@ -39,6 +39,7 @@ export default function useOrder() {
 
   // ✅ 3. Fetch orders by userId
   const getAllOrdersByUserId = async (userId) => {
+    setLoading(true);
     try {
       const res = await API.get(`/order/${userId}`);
       return res.data;
@@ -46,12 +47,58 @@ export default function useOrder() {
       console.error("❌ Error loading orders:", error.message);
       setErr(error.message);
       return [];
+    } finally {
+      setLoading(false);
     }
   };
+
+  const getAllOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await API.get(`/order`);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Error loading orders:", error.message);
+      setErr(error.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (id, status) => {
+    try {
+      await API.put(`/order/${id}`, { status });
+    } catch (error) {
+      console.error("❌ Error updating orders", error.message);
+      setErr(error.message);
+    }
+  };
+
+  const deleteOrder = async (id) => {
+    try {
+      await API.delete(`/order/${id}`);
+      console.log("deleted succesfully!");
+    } catch (error) {
+      console.error("❌ Error updating orders", error.message);
+      setErr(error.message);
+    }
+  };
+
+  //["PENDING", "PREPARING", "SERVED", "CANCELLED"],
 
   useEffect(() => {
     getUser();
   }, [user]);
 
-  return { createOrder, getAllOrdersByUserId, loading, err, userData };
+  return {
+    createOrder,
+    getAllOrdersByUserId,
+    updateStatus,
+    deleteOrder,
+    getAllOrders,
+    loading,
+    err,
+    userData,
+  };
 }

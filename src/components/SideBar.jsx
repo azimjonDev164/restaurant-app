@@ -7,22 +7,27 @@ import {
   faPersonCircleCheck,
   faUser,
   faProjectDiagram,
+  faDashboard,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useSearch } from "../context/SearchContext";
+import useOrder from "../hooks/useOrder";
 
 const filters = [
   { title: "Home", link: "/", icon: faHome },
-  { title: "Dashboard", link: "/dashboard", icon: faHome },
   { title: "Tabels", link: "/tables", icon: faUtensils },
 
   { title: "Orders", link: "/orders", icon: faShoppingCart },
   { title: "Profile", link: "/profile", icon: faPersonCircleCheck },
 ];
 
-const Adminfilters = [{ title: "users", link: "/users", icon: faUser }];
+const Adminfilters = [
+  { title: "Dashboard", link: "/dashboard", icon: faDashboard },
+  { title: "Users", link: "/users", icon: faUser },
+];
 
 function SideBar() {
+  const { userData } = useOrder();
   const [filter, setFilter] = useState("Home");
   const { isOpen, setIsOpen } = useSearch();
 
@@ -30,32 +35,33 @@ function SideBar() {
     <div
       className={`${
         isOpen ? "block" : "hidden"
-      } md:flex  w-[250px] min-w-[220px] resize-x overflow-auto h-[calc(100vh-60px)] bg-[#232427] text-gray-200 shadow-lg flex-col`}
+      }  md:flex w-[250px] min-w-[220px] resize-x overflow-auto h-[calc(100vh-60px)] bg-[#232427] text-gray-200 shadow-lg flex-col`}
     >
-      {/* Menu */}
-      <ul className="flex flex-col mt-4 space-y-2 px-2">
-        {filters.map((item) => (
-          <li
-            key={item.title}
-            onClick={() => {
-              setFilter(item.title);
-              setIsOpen(!isOpen);
-            }}
-          >
-            <Link
-              to={item.link}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-300 hover:text-black transition-colors duration-200 ${
-                item.title === filter ? "bg-yellow-500" : ""
-              }`}
-            >
-              <FontAwesomeIcon icon={item.icon} className="text-lg" />
-              <span>{item.title}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
       <ul className="flex flex-col mt-4 space-y-2 px-2 pt-2 border-t border-gray-700">
-        {Adminfilters.map((item) => (
+        {userData?.role === "ADMIN" &&
+          Adminfilters.map((item) => (
+            <li
+              key={item.title}
+              onClick={() => {
+                setFilter(item.title);
+                setIsOpen(!isOpen);
+              }}
+            >
+              <Link
+                to={item.link}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-yellow-300 hover:text-black transition-colors duration-200 ${
+                  item.title === filter ? "bg-yellow-500" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={item.icon} className="text-lg" />
+                <span>{item.title}</span>
+              </Link>
+            </li>
+          ))}
+      </ul>
+      {/* Menu */}
+      <ul className="flex flex-col mt-4 space-y-2 px-2 mb-auto">
+        {filters.map((item) => (
           <li
             key={item.title}
             onClick={() => {

@@ -14,9 +14,11 @@ import Order from "./Order";
 export default function TableItem() {
   const { id } = useParams();
   const { isSignedIn, getToken } = useAuth();
-  const { createReservation, getAllReservations, userData } = useReservation();
+  const { createReservation, getAllReservations, getTable, userData } =
+    useReservation();
 
   const [reservations, setReservations] = useState([]);
+  const [table, setTable] = useState({});
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [select, setSelect] = useState({ startTime: "", endTime: "" });
 
@@ -24,6 +26,8 @@ export default function TableItem() {
     (async () => {
       const data = await getAllReservations(id);
       setReservations(data);
+      const tableData = await getTable(id);
+      setTable(tableData);
     })();
   }, [id]);
 
@@ -32,7 +36,7 @@ export default function TableItem() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <FontAwesomeIcon icon={faChair} className="text-yellow-400" />
-          Table #{id}
+          Table # {table.number ? table.number : ""}
         </h1>
       </div>
 
@@ -42,7 +46,10 @@ export default function TableItem() {
             icon={faChair}
             className="text-6xl text-yellow-400 mb-4"
           />
-          <h2 className="text-2xl font-semibold mb-1">Table {id}</h2>
+          <h2 className="text-2xl font-semibold mb-1">
+            Table {table.number ? table.number : ""}/Seat{" "}
+            {table.seat ? table.seat : ""}
+          </h2>
           <p className="text-gray-400 mb-4">
             {selectedSlot ? "✅ Reserved" : "Available"}
           </p>
@@ -55,6 +62,7 @@ export default function TableItem() {
               setSelect({ ...select, startTime: e.target.value })
             }
             className="bg-gray-700 rounded-md p-2 mb-2"
+            required
           />
           <label>End Time</label>
           <input
@@ -62,11 +70,17 @@ export default function TableItem() {
             value={select.endTime}
             onChange={(e) => setSelect({ ...select, endTime: e.target.value })}
             className="bg-gray-700 rounded-md p-2 mb-4"
+            required
           />
 
           <button
             onClick={async () => {
-              if (isSignedIn && getToken()) {
+              if (
+                isSignedIn &&
+                getToken() &&
+                select.startTime &&
+                select.endTime
+              ) {
                 const res = await createReservation(
                   userData._id,
                   id,
@@ -92,7 +106,7 @@ export default function TableItem() {
               icon={faCalendarCheck}
               className="text-yellow-400"
             />
-            Reservations for Table #{id}
+            Reservations for Table #{table.number ? table.number : ""}
           </h3>
           <table className="w-full text-left border-collapse">
             <thead>
@@ -106,9 +120,6 @@ export default function TableItem() {
               {reservations.map((res) => (
                 <tr
                   key={res._id}
-                  onClick={() => {
-                    setSelectedSlot(res._id);
-                  }}
                   className="border-b border-gray-700 hover:bg-gray-700/50"
                 >
                   <td className="px-4 py-3">
@@ -129,7 +140,7 @@ export default function TableItem() {
         <div className="mt-10 bg-gray-900">
           <h3 className="text-2xl font-semibold flex items-center gap-2">
             <FontAwesomeIcon icon={faUtensils} className="text-yellow-400" />
-            Order for Reservation #{selectedSlot}
+            Order for Reservation #{table.number ? table.number : ""}
           </h3>
           <Order tableId={id} reservationId={selectedSlot} />
         </div>
