@@ -17,34 +17,47 @@ export default function Tables() {
     updateTable,
     deleteTable,
   } = useTable();
-
+  const PORT = import.meta.env.VITE_PORT;
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null); // ✅ to detect edit mode
   const [formData, setFormData] = useState({
     name: "",
     seat: "",
     status: "available",
+    image: "",
   });
 
   // ✅ Handle input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      setFormData((prev) => ({ ...prev, image: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // ✅ Save or update table
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
     try {
+      const status = formData.status === "available";
+      const data = new FormData();
+      data.append("number", formData.name);
+      data.append("seat", formData.seat);
+      data.append("isAvailable", status);
+      if (formData.image) data.append("image", formData.image);
       if (editingId) {
         // UPDATE mode
-        const status = formData.status === "available";
-        await updateTable(editingId, status);
+        console.log(formData);
+        await updateTable(editingId, data);
       } else {
         // CREATE mode
-        await createTable(Number(formData.name), Number(formData.seat));
+        await createTable(data);
       }
 
       setFormData({ name: "", status: "available" });
+      document.querySelector('input[name="image"]').value = "";
       setEditingId(null);
       setShowModal(false);
     } catch (error) {
@@ -98,6 +111,7 @@ export default function Tables() {
         </caption>
         <thead>
           <tr className="bg-gray-700 text-gray-300">
+            <th className="px-4 py-2">Image</th>
             <th className="px-4 py-2">Table Number</th>
             <th className="px-4 py-2">Table Seats</th>
             <th className="px-4 py-2">Status</th>
@@ -124,6 +138,17 @@ export default function Tables() {
                 key={item?._id}
                 className="hover:bg-gray-700 transition-all duration-200"
               >
+                <td className="px-4 py-2">
+                  <img
+                    className="w-[60px] h-[60px] rounded-2xl object-cover"
+                    src={
+                      item?.image?.startsWith("http")
+                        ? item.image
+                        : `${PORT}${item.image}`
+                    }
+                    alt={item.name}
+                  />
+                </td>
                 <td className="px-4 py-2 font-medium">Table {item?.number}</td>
                 <td className="px-4 py-2 font-medium">{item?.seat}</td>
                 <td
@@ -204,6 +229,15 @@ export default function Tables() {
               <option value="available">Available</option>
               <option value="booked">Booked</option>
             </select>
+
+            <label className="block mb-2 text-sm">Image</label>
+            <input
+              name="image"
+              type="file"
+              accept="image/*"
+              onChange={handleChange}
+              className="file-input file-input-ghost w-full mb-3"
+            />
 
             {/* SAVE BUTTON */}
             <button

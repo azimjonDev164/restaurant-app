@@ -22,6 +22,7 @@ export default function Dishes() {
   } = useDish();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const PORT = import.meta.env.VITE_PORT;
   const [data, setData] = useState({
     name: "",
     price: "",
@@ -141,7 +142,7 @@ export default function Dishes() {
                     src={
                       item?.image?.startsWith("http")
                         ? item.image
-                        : `http://localhost:3000${item.image}`
+                        : `${PORT}${item.image}`
                     }
                     alt={item.name}
                   />

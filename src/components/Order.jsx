@@ -19,6 +19,7 @@ function Order({ tableId, reservationId }) {
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const PORT = import.meta.env.VITE_PORT;
 
   if (!filter && filters.length > 0) setFilter(filters[0].name.toLowerCase());
 
@@ -98,7 +99,7 @@ function Order({ tableId, reservationId }) {
                   src={
                     item?.image?.startsWith("http")
                       ? item.image
-                      : `http://localhost:3000${item.image}`
+                      : `${PORT}${item.image}`
                   }
                   alt={item.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

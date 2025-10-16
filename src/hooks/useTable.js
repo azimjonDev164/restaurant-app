@@ -3,7 +3,6 @@ import API from "../services/api";
 
 export default function useTable() {
   const [data, setData] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
@@ -20,9 +19,11 @@ export default function useTable() {
     }
   };
 
-  const createTable = async (number, seat) => {
+  const createTable = async (formData) => {
     try {
-      const res = await API.post("/table", { number, seat });
+      const res = await API.post("/table", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setData((prev) => [...prev, res.data]);
     } catch (error) {
       console.error("Error adding table:", error);
@@ -30,9 +31,11 @@ export default function useTable() {
     }
   };
 
-  const updateTable = async (id, isAvailable) => {
+  const updateTable = async (id, formData) => {
     try {
-      const res = await API.put(`/table/${id}`, { isAvailable });
+      const res = await API.put(`/table/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setData((prev) =>
         prev.map((item) => (item._id === id ? res.data : item))
       );

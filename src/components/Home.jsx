@@ -6,7 +6,8 @@ import { MapPin, Phone, Clock } from "lucide-react";
 function Home() {
   const { data = [] } = useDish();
   const navigate = useNavigate();
-
+  const PORT = import.meta.env.VITE_PORT;
+  
   return (
     <div className="w-full flex flex-col gap-16 mt-6 px-4 md:px-6 lg:px-8">
       {/* 🌟 Banner Section */}
@@ -50,7 +51,7 @@ function Home() {
                   src={
                     item?.image?.startsWith("http")
                       ? item.image
-                      : `http://localhost:3000${item.image}`
+                      : `${PORT}${item.image}`
                   }
                   alt={item.name}
                   className="object-cover w-full h-full hover:scale-110 transition-transform duration-700"

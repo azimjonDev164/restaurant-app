@@ -27,6 +27,7 @@ function Orders() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editOrder, setEditOrder] = useState("PENDING");
+  const PORT = import.meta.env.VITE_PORT;
   const [edit, setEdit] = useState({
     isShow: false,
     itemId: null,
@@ -278,7 +279,7 @@ function Orders() {
                                         src={
                                           item?.dish?.image?.startsWith("http")
                                             ? item?.dish?.image
-                                            : `http://localhost:3000${item?.dish?.image}`
+                                            : `${PORT}${item?.dish?.image}`
                                         }
                                         alt={item.name}
                                       />

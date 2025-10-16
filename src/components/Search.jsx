@@ -8,6 +8,7 @@ export default function Search() {
   const { data = [] } = useDish();
   const [filterData, setFilterData] = useState(data); // local state for input typing
   const navigate = useNavigate();
+  const PORT = import.meta.env.VITE_PORT;
   // Filter data live as user types
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Search() {
                   src={
                     item?.image?.startsWith("http")
                       ? item.image
-                      : `http://localhost:3000${item.image}`
+                      : `${PORT}{item.image}`
                   }
                   alt="Special Dish"
                   className="object-cover w-full h-full hover:scale-110 transition-transform duration-500"

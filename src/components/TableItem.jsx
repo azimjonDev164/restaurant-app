@@ -21,6 +21,7 @@ export default function TableItem() {
   const [table, setTable] = useState({});
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [select, setSelect] = useState({ startTime: "", endTime: "" });
+  const PORT = import.meta.env.VITE_PORT;
 
   useEffect(() => {
     (async () => {
@@ -42,18 +43,30 @@ export default function TableItem() {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex flex-col items-center bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full lg:w-[350px] p-8">
-          <FontAwesomeIcon
-            icon={faChair}
-            className="text-6xl text-yellow-400 mb-4"
-          />
+          {/* TABLE IMAGE */}
+          <div className="w-full h-48 rounded-xl overflow-hidden mb-4">
+            <img
+              src={
+                table?.image
+                  ? table.image.startsWith("http")
+                    ? table.image
+                    : `${PORT}${table.image}`
+                  : "/no-image.jpg"
+              }
+              alt={`Table ${table?.number}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* TABLE DETAILS */}
           <h2 className="text-2xl font-semibold mb-1">
-            Table {table.number ? table.number : ""}/Seat{" "}
-            {table.seat ? table.seat : ""}
+            Table {table.number ?? ""} / Seat {table.seat ?? ""}
           </h2>
           <p className="text-gray-400 mb-4">
             {selectedSlot ? "✅ Reserved" : "Available"}
           </p>
 
+          {/* Reservation Form */}
           <label>Start Time</label>
           <input
             type="datetime-local"
@@ -69,18 +82,54 @@ export default function TableItem() {
             type="datetime-local"
             value={select.endTime}
             onChange={(e) => setSelect({ ...select, endTime: e.target.value })}
+            min={select.startTime}
             className="bg-gray-700 rounded-md p-2 mb-4"
             required
           />
-
           <button
             onClick={async () => {
-              if (
-                isSignedIn &&
-                getToken() &&
-                select.startTime &&
-                select.endTime
-              ) {
+              if (!select.startTime || !select.endTime) {
+                alert("⚠️ Please select both start and end time!");
+                return;
+              }
+
+              const start = new Date(select.startTime);
+              const end = new Date(select.endTime);
+
+              // Check same day
+              const sameDay =
+                start.getFullYear() === end.getFullYear() &&
+                start.getMonth() === end.getMonth() &&
+                start.getDate() === end.getDate();
+
+              if (!sameDay) {
+                alert("⚠️ Start and end time must be on the same day!");
+                return;
+              }
+
+              // Calculate time difference in minutes
+              const diffMinutes = (end - start) / (1000 * 60);
+
+              if (end <= start) {
+                alert("⚠️ End time must be after start time!");
+                return;
+              }
+
+              if (diffMinutes < 30) {
+                alert("⚠️ Minimum reservation is 30 minutes!");
+                return;
+              }
+
+              if (diffMinutes > 180) {
+                alert("⚠️ Maximum reservation is 3 hours!");
+                return;
+              }
+
+              if (!isSignedIn && !getToken()) {
+                alert("⚠️ Please sign in!");
+                return;
+              }
+              if (isSignedIn && getToken()) {
                 const res = await createReservation(
                   userData._id,
                   id,
@@ -90,10 +139,14 @@ export default function TableItem() {
                 if (res?._id) {
                   alert("✅ Table booked successfully!");
                   setSelectedSlot(res._id);
+                } else {
+                  alert("❌ Something went wrong while booking!");
                 }
+              } else {
+                alert("⚠️ Please sign in to book a table!");
               }
             }}
-            className="bg-yellow-500 hover:bg-yellow-600 font-semibold px-4 py-2 rounded-md"
+            className="bg-yellow-500 hover:bg-yellow-600 font-semibold px-4 py-2 rounded-md cursor-pointer"
           >
             Book
           </button>
