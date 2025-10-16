@@ -40,7 +40,7 @@ export default function Search() {
                   src={
                     item?.image?.startsWith("http")
                       ? item.image
-                      : `${PORT}{item.image}`
+                      : `${PORT}${item.image}`
                   }
                   alt="Special Dish"
                   className="object-cover w-full h-full hover:scale-110 transition-transform duration-500"

@@ -143,7 +143,7 @@ function Orders() {
 
         {/* 🧾 Orders Table */}
         <div className="mt-8">
-          <div className="bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-700">
+          <div className="bg-gray-800 rounded-2xl shadow-xl border border-gray-700">
             <table className="table-auto w-full text-left text-white">
               <thead>
                 <tr className="bg-gray-700/90 text-gray-200 uppercase text-xs tracking-wider">
