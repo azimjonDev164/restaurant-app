@@ -143,10 +143,10 @@ function Orders() {
 
         {/* 🧾 Orders Table */}
         <div className="mt-8">
-          <div className="bg-gray-800">
+          <div>
             <table className="table-auto w-full text-left text-white">
               <thead>
-                <tr className="bg-gray-700/90 text-gray-200 uppercase text-xs tracking-wider">
+                <tr className="bg-gray-800/90 text-gray-200 uppercase text-xs tracking-wider">
                   <th className="px-6 py-4 font-semibold">User</th>
                   <th className="px-6 py-4 font-semibold">Table</th>
                   <th className="px-6 py-4 font-semibold">Date</th>
