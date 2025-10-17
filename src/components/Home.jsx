@@ -17,11 +17,11 @@ function Home() {
           alt="Restaurant Banner"
           className="w-full h-[400px] object-cover"
         />
-        <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-center text-white px-6">
-          <h1 className="text-5xl font-extrabold mb-4 drop-shadow-md">
+        <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center text-center text-white px-6 py-3">
+          <h1 className="text-2xl md:text-5xl font-extrabold mb-4 drop-shadow-md">
             Welcome to Our Restaurant 🍷
           </h1>
-          <p className="text-lg max-w-2xl leading-relaxed mb-6">
+          <p className="text-md md:text-lg max-w-2xl leading-relaxed mb-6">
             Enjoy mouthwatering dishes, elegant ambiance, and the perfect place
             for your gatherings. Discover the real taste of happiness!
           </p>
