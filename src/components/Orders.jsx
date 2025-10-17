@@ -36,26 +36,26 @@ function Orders() {
 
   const menu = ["PENDING", "PREPARING", "SERVED", "CANCELLED"];
 
+  const fetchOrders = async () => {
+    try {
+      if (userData.role === "ADMIN") {
+        const res = await getAllOrders();
+        setOrders(res);
+      } else {
+        const res = await getAllOrdersByUserId(userData._id);
+        setOrders(res);
+      }
+    } catch (err) {
+      console.error("❌ Error loading orders:", err.message);
+    }
+  };
+
   // ✅ Proper useEffect call
   useEffect(() => {
     if (!userData?._id) return;
 
-    const fetchOrders = async () => {
-      try {
-        if (userData.role === "ADMIN") {
-          const res = await getAllOrders();
-          setOrders(res);
-        } else {
-          const res = await getAllOrdersByUserId(userData._id);
-          setOrders(res);
-        }
-      } catch (err) {
-        console.error("❌ Error loading orders:", err.message);
-      }
-    };
-
     fetchOrders();
-  }, [userData, edit?.quantity, del]); // <-- re-run when userData changes
+  }, [userData]); // <-- re-run when userData changes
   // ✅ Conditional rendering after hooks
 
   // 🗑 Delete dish
@@ -63,6 +63,7 @@ function Orders() {
     if (window.confirm("Are you sure you want to delete this order item?")) {
       deleteOrderItem(id);
       setDet(id);
+      fetchOrders();
     }
   };
 
@@ -70,15 +71,25 @@ function Orders() {
     if (window.confirm("Are you sure you want to delete this order?")) {
       deleteOrder(id);
       setDet(id);
+      fetchOrders();
     }
   };
 
   // 🧠 Update the handleEdit function
-  const handleEdit = async (id) => {
+  const handleEdit = async (id, e) => {
+    e.preventDefault();
     try {
       const res = await updateOrderItem(id, edit.quantity);
       console.log(res.data);
 
+      setOrders((prevOrders) =>
+        prevOrders.map((order) => ({
+          ...order,
+          items: order.items.map((item) =>
+            item._id === id ? { ...item, quantity: edit.quantity } : item
+          ),
+        }))
+      );
       // reset edit state after saving
       setEdit({ isShow: false, itemId: null, quantity: "" });
     } catch (error) {
@@ -90,6 +101,7 @@ function Orders() {
     try {
       if (editingId) {
         await updateStatus(editingId, editOrder);
+        fetchOrders();
       }
       setEditOrder("PENDING");
       setShowModal(false);
@@ -295,7 +307,7 @@ function Orders() {
                                               key={item._id}
                                               onSubmit={(e) => {
                                                 e.preventDefault();
-                                                handleEdit(item._id);
+                                                handleEdit(item._id, e);
                                               }}
                                             >
                                               <input

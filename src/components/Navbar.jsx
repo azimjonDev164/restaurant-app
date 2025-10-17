@@ -75,14 +75,6 @@ function Navbar() {
           </button>
         </Link>
 
-        {/* Messages */}
-        <button className="relative hover:text-yellow-400 transition-colors cursor-pointer">
-          <FontAwesomeIcon icon={faMessage} className="text-lg" />
-          <span className="absolute -top-2 -right-2 bg-green-500 text-[10px] font-bold text-white rounded-full w-5 h-5 flex items-center justify-center shadow">
-            5
-          </span>
-        </button>
-
         {/* Profile dropdown */}
 
         <SignedOut>
