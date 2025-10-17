@@ -154,7 +154,7 @@ function Orders() {
                   <th className="px-6 py-4 font-semibold">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="divide-y">
                 {loading ? (
                   <tr>
                     <td colSpan="5" className="text-center py-4 text-gray-400">
@@ -195,7 +195,7 @@ function Orders() {
                                   Table{" "}
                                   {order?.reservation?.table?.number || "N/A"}
                                 </span>
-                                <span className="w-1/5 text-gray-300">
+                                <span className="w-1/5 text-gray-300 text-sm md:text-xl">
                                   {new Date(order.createdAt).toLocaleString(
                                     "en-US",
                                     {
