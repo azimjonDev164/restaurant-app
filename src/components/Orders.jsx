@@ -143,7 +143,7 @@ function Orders() {
 
         {/* 🧾 Orders Table */}
         <div className="mt-8">
-          <div className="bg-gray-800 rounded-2xl shadow-xl border border-gray-700">
+          <div className="bg-gray-800 rounded-2xl shadow-xl">
             <table className="table-auto w-full text-left text-white">
               <thead>
                 <tr className="bg-gray-700/90 text-gray-200 uppercase text-xs tracking-wider">
@@ -187,15 +187,15 @@ function Orders() {
                                 htmlFor={drawerId}
                                 className="flex w-full items-center px-6 py-4 cursor-pointer"
                               >
-                                <span className="w-1/5 font-medium text-gray-100 text-sm md:text-xl">
+                                <span className="w-1/5 font-medium text-gray-100 text-sm md:text-md">
                                   {order?.user?.name || "unknown"}
                                 </span>
 
-                                <span className=" w-1/5 font-medium text-gray-100 text-sm md:text-xl">
+                                <span className=" w-1/5 font-medium text-gray-100 text-sm md:text-md">
                                   Table{" "}
                                   {order?.reservation?.table?.number || "N/A"}
                                 </span>
-                                <span className="w-1/5 text-gray-300 text-sm md:text-xl">
+                                <span className="w-1/5 text-gray-300 text-sm md:text-md">
                                   {new Date(order.createdAt).toLocaleString(
                                     "en-US",
                                     {
