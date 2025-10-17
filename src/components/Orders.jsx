@@ -157,13 +157,13 @@ function Orders() {
               <tbody className="divide-y divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan="3" className="text-center py-4 text-gray-400">
+                    <td colSpan="5" className="text-center py-4 text-gray-400">
                       Loading orders...
                     </td>
                   </tr>
                 ) : err ? (
                   <tr>
-                    <td colSpan="3" className="text-center py-4 text-red-400">
+                    <td colSpan="5" className="text-center py-4 text-red-400">
                       {err}
                     </td>
                   </tr>
@@ -187,15 +187,15 @@ function Orders() {
                                 htmlFor={drawerId}
                                 className="flex w-full items-center px-6 py-4 cursor-pointer"
                               >
-                                <span className="w-1/5 font-medium text-gray-100">
+                                <span className="w-1/5 font-medium text-gray-100 text-sm md:text-xl">
                                   {order?.user?.name || "unknown"}
                                 </span>
 
-                                <span className=" w-1/5 font-medium text-gray-100">
+                                <span className=" w-1/5 font-medium text-gray-100 text-sm md:text-xl">
                                   Table{" "}
                                   {order?.reservation?.table?.number || "N/A"}
                                 </span>
-                                <span className="w-1/4 text-gray-300">
+                                <span className="w-1/5 text-gray-300">
                                   {new Date(order.createdAt).toLocaleString(
                                     "en-US",
                                     {
@@ -204,7 +204,7 @@ function Orders() {
                                     }
                                   )}
                                 </span>
-                                <span className="w-1/4">
+                                <span className="w-1/5">
                                   <span
                                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                       order.status === "In Progress"
@@ -217,7 +217,7 @@ function Orders() {
                                     {order?.status}
                                   </span>
                                 </span>
-                                <span className="w-1/4 flex justify-center gap-3 items-center">
+                                <span className="w-1/5 flex justify-center gap-3 items-center">
                                   <button
                                     onClick={() => handleDeleteOrder(order._id)}
                                     className="text-red-400 hover:text-red-500 cursor-pointer"
