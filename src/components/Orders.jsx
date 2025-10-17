@@ -143,7 +143,7 @@ function Orders() {
 
         {/* 🧾 Orders Table */}
         <div className="mt-8">
-          <div className="bg-gray-800 rounded-2xl shadow-xl">
+          <div className="bg-gray-800">
             <table className="table-auto w-full text-left text-white">
               <thead>
                 <tr className="bg-gray-700/90 text-gray-200 uppercase text-xs tracking-wider">
@@ -154,7 +154,7 @@ function Orders() {
                   <th className="px-6 py-4 font-semibold">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody>
                 {loading ? (
                   <tr>
                     <td colSpan="5" className="text-center py-4 text-gray-400">
